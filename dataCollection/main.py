@@ -21,7 +21,7 @@ def main():
 	database_2 = os.getenv('database_2')
 	uid_2 = os.getenv('uid_2')
 	pwd_2 = os.getenv('pwd_2')
-
+	bearer_token = os.getenv('bearer_token')
 	db = database.Database(server_1,database_1,uid_1,pwd_1)
 	date = datetime.now()
 	seeds = {}
@@ -36,14 +36,20 @@ def main():
 
 	#with open("tweetSample.txt",'w') as f:
 		#[print(tweet.IDstr, file=f) for tweet in median_tweets]
-	#with open("tweetSample.txt",'r') as f:
-			#hamilton_tweets =  f.readlines()
+	with open("dataCollection/tweetSample.txt",'r') as f:
+			hamilton_tweets =  f.readlines()
 	
-	#for i in range(0,len(hamilton_tweets)):
+	for i in range(0,len(hamilton_tweets)):
+		hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
 
-		#hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
-
-	#sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret)
+	sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
+	user_ids = sample.getRetweeters(hamilton_tweets[0])
+	
+	users = sample.getUsersData(user_ids)
+	print(users[0].tweets)
+	
+	engaged = sample.mostEngagedUsers(users[0], 3,True)
+	print(engaged)
 	#retweeters = []
 	#for tweet in median_tweets:
 		#retweeters.extend(sample.getRetweeters(tweet.IDstr))

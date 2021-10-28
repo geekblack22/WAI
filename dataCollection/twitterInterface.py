@@ -2,17 +2,19 @@ import tweepy
 import time
 import database
 from timeit import default_timer as timer
+from collections import Counter
 class TwitterInterface:
 
 	"""This class interfaces with the Twitter API"""
 
-	def __init__(self,consumer_key,consumer_secret):
+	def __init__(self,consumer_key,consumer_secret,bearer_token):
 		self.consumer_key = consumer_key
 		self.consumer_secret = consumer_secret
 		self._auth = tweepy.AppAuthHandler(consumer_key, consumer_secret)
 		self.api = tweepy.API(self._auth)
 		self.lastQ = timer()
-
+		self._bearer_token = bearer_token
+		self.client = tweepy.Client(bearer_token=self._bearer_token)
 
 	def storeRetweeters(self,loc,twitter_ids):
 		"""Stores the retweeter user IDs in a text file
@@ -136,7 +138,32 @@ class TwitterInterface:
 			if media.get('type',None) == "video":
 				contains_video = True
 		return photo_count,contains_video
+	def mostEngagedUsers(self, user,num_users,likes):
+		tweets = user.tweets
+		account_dict = {}
+		top_users = []
 
+		for i in range(0,len(tweets)):
+			if likes:
+				self.rateLim()
+				accounts = self.client.get_liking_users(tweets[i].IDstr)
+			else:
+				self.rateLim()
+				accounts = self.getRetweeters(tweets[i].IDstr)
+			for j in range(0,len(accounts)):
+				if accounts[j] in account_dict:
+					account_dict[accounts[j]] += 1
+				else:
+					account_dict[accounts[j]] = 1
+		k = Counter(account_dict)
+ 
+			# Finding 3 highest values
+		high = k.most_common(num_users)
+
+		for i in high:
+			top_users[i] = i[0]
+		return top_users
+	
 	# f= open("retweeterIDs.txt","w+")
 	# def writeToFile(list):
 	#	 for i in range(0,len(list)):
