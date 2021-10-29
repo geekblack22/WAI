@@ -60,18 +60,16 @@ class TwitterInterface:
 		for i in range(0,len(list)):
 			self.rateLim()
 			response = self.api.get_user(user_id = list[i])
-			tweets =  self.getAllTweets(list[i],response.screen_name)
+			tweets =  self.getAllTweets(list[i])
 			users[i] = database.User(list[i],response.screen_name,tweets,response.created_at)
 		return users
 
-	def getAllTweets(self,id,screen_name):
+	def getAllTweets(self,id):
 		"""gets all the tweets of a user  
 		Parameters
 		----------
 		id: str 
 			User ID assigned by Twitter 	
-		screen_name: str 
-			User screen nmae	
 		Returns
 		-------
 		list
@@ -84,9 +82,8 @@ class TwitterInterface:
 			photo_count, contains_video = self._numMedia(tweet)
 			creation_date = tweet.created_at
 			hashtags = tweet.entities.get("hashtags")
-			tweet_id = tweet.id
 			tweet_id_str = tweet.id_str
-			tweet_object = database.Tweet(tweet_id,tweet_id_str,screen_name,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count)
+			tweet_object = database.Tweet(tweet_id_str,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,posterID= id)
 			user_tweets.append(tweet_object)
 		return user_tweets
 

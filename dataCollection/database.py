@@ -55,15 +55,15 @@ class Database:
 def dtto(t):
 	return "'" + str(t).split(' ')[0] + "'"
 class Tweet:
-	def __init__(self, ID, IDstr, screenName, retweets=0, time=0, contains_videos=False, num_photos=0,list_of_hashtags=[],posterID=""):
-		self.ID = ID		  #int
+	def __init__(self, IDstr, retweets=0, time=0, contains_videos=False, num_photos=0,list_of_hashtags=[],posterID=""):
+
 		self.IDstr = IDstr	   #string
 		self.posterID = posterID
 		self.retweets = retweets
 		self.time = time
 		self.contains_videos = contains_videos
 		self.list_of_hashtags = list_of_hashtags
-		self.screenName = screenName
+	
 		self.num_photos = num_photos
 
 def retweet_compare(tweet1, tweet2):
