@@ -17,33 +17,6 @@ class TwitterInterface:
 		self._bearer_token = bearer_token
 		self.client = tweepy.Client(bearer_token=self._bearer_token)
 
-	def storeRetweeters(self,loc,twitter_ids):
-		"""Stores the retweeter user IDs in a text file
-		Parameters
-		----------
-		loc: str
-			path of text file to save retweeter user IDs to
-		twitter_ids: list of str
-			list of Status IDs	
-
-		
-		 """
-		f= open(loc,"w+")
-		def writeToFile(list):
-			for i in range(0,len(list)):
-				print(list[i])
-			
-				f.write(str(list[i]) + ",")
-			f.write("\n")
-		for i in range(0,5):
-			try:
-				result = self.api.get_retweeter_ids(twitter_ids[i])
-				time.sleep(.25)
-				writeToFile(result)
-			except:
-				result = []
-		f.close()
-
 	def getRetweeters(self, twitter_id):
 		print(twitter_id)
 		self.rateLim()
@@ -105,7 +78,7 @@ class TwitterInterface:
 			a list of twitter objects
 		 """
 		self.rateLim()
-		tweets = tweepy.Cursor(self.api.user_timeline, user_id = id).items(5)
+		tweets = tweepy.Cursor(self.api.user_timeline, user_id = id).items(50)
 		user_tweets = []
 		for tweet in tweets:
 			photo_count, contains_video = self._numMedia(tweet)
@@ -119,8 +92,8 @@ class TwitterInterface:
 
 	def rateLim(self):
 		now = timer()
-		if (.34 - (now - self.lastQ) > 0):
-			time.sleep(.34 - (now - self.lastQ))
+		if (1 - (now - self.lastQ) > 0):
+			time.sleep(1 - (now - self.lastQ))
 		self.lastQ = timer()
 
 	def _numMedia(self,tweet):
@@ -175,7 +148,7 @@ class TwitterInterface:
 		high = k.most_common(num_users)
 
 		for i in high:
-			top_users[i] = i[0]
+			top_users.append(i[0])
 		return top_users
 	
 	# f= open("retweeterIDs.txt","w+")

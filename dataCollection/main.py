@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 import os 
 
 
+
+
 def main():
 	load_dotenv()
 	
@@ -22,6 +24,8 @@ def main():
 	uid_2 = os.getenv('uid_2')
 	pwd_2 = os.getenv('pwd_2')
 	bearer_token = os.getenv('test_token')
+	
+
 	db = database.Database(server_1,database_1,uid_1,pwd_1)
 	date = datetime.now()
 	seeds = {}
@@ -36,6 +40,7 @@ def main():
 
 	#with open("tweetSample.txt",'w') as f:
 		#[print(tweet.IDstr, file=f) for tweet in median_tweets]
+	
 	with open("dataCollection/tweetSample.txt",'r') as f:
 			hamilton_tweets =  f.readlines()
 	
@@ -43,8 +48,13 @@ def main():
 		hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
 
 	sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
-	user_ids = sample.getRetweeters("1441982241844785153")
-	print(user_ids)
+	tweets = sample.getAllTweets("1019073448633659393","Afro-Optimist")
+
+
+	# user_ids = sample.getRetweeters("1441982241844785153")
+	user = database.User("1019073448633659393","Afro-Optimist",tweets,"")
+	likers = sample.mostEngagedUsers(user,5,False)
+	print(likers)
 	# likers = sample.getLikingUsers("1441982241844785153")
 	# print(likers)
 
