@@ -35,7 +35,7 @@ class Database:
 
 	def highestPercentGrowth(self, n, date):
 		date = dtto(date)
-		lst = self.cursor.execute("SELECT [screenName] ,Min([followerCount]) as minFollowers, Max(followerCount) as maxFollowers, 100*(Max(followerCount)-Min([followerCount]))/(1+Max(followerCount)) percentChange FROM [dbo].[V_Handles_History] WHERE [snapshotDate] >= DATEADD(day, -30, {}) AND [snapshotDate] <= {} AND country in ('ch','ru','ir') group by screenName order by percentChange desc".format(date,date))
+		lst = self.cursor.execute("SELECT [idStr] ,Min([followerCount]) as minFollowers, Max(followerCount) as maxFollowers, 100*(Max(followerCount)-Min([followerCount]))/(1+Max(followerCount)) percentChange FROM [dbo].[V_Handles_History] WHERE [snapshotDate] >= DATEADD(day, -30, {}) AND [snapshotDate] <= {} AND country in ('ch','ru','ir') group by idStr order by percentChange desc".format(date,date))
 		return [row[0] for row in itertools.islice(lst,n)]
 
 	def insertUser(self,user):
