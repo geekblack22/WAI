@@ -61,7 +61,7 @@ class TwitterInterface:
 			self.rateLim()
 			response = self.api.get_user(user_id = list[i])
 			tweets =  self.getAllTweets(list[i])
-			users[i] = database.User(list[i],response.screen_name,tweets,response.created_at)
+			users[i] = database.User(list[i],tweets,response.created_at)
 		return users
 
 	def getAllTweets(self,id):
@@ -76,14 +76,20 @@ class TwitterInterface:
 			a list of twitter objects
 		 """
 		self.rateLim()
-		tweets = tweepy.Cursor(self.api.user_timeline, user_id = id).items(50)
+		tweets = tweepy.Cursor(self.api.user_timeline, user_id = id).items(200)
 		user_tweets = []
 		for tweet in tweets:
 			photo_count, contains_video = self._numMedia(tweet)
 			creation_date = tweet.created_at
 			hashtags = tweet.entities.get("hashtags")
+			mentions = tweet.entities.get("user_mentions")
+			mentioned_ids = []
+			for mention in mentions:
+				mentioned_ids.append(mention.get('id_str'))
+			
+
 			tweet_id_str = tweet.id_str
-			tweet_object = database.Tweet(tweet_id_str,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,posterID= id)
+			tweet_object = database.Tweet(tweet_id_str,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,posterID= id,mentioned_ids = mentioned_ids)
 			user_tweets.append(tweet_object)
 		return user_tweets
 
@@ -119,16 +125,13 @@ class TwitterInterface:
 		tweets = user.tweets
 		account_dict = {}
 		top_users = []
-		
 		for i in range(0,len(tweets)):
-			
 			if likes:
 				self.rateLim()
 				likers = self.client.get_liking_users(tweets[i].IDstr)
 				print(tweets[i].IDstr,likers)
 				accounts = []
 				if likers[0] is not None:
-					
 					for item in likers[0]:
 						accounts.append(item[0])
 			else:
@@ -143,10 +146,13 @@ class TwitterInterface:
  
 			# Finding 3 highest values
 		high = k.most_common(num_users)
-
+		print(account_dict)
+		print("\n")
+		print(high)
 		for i in high:
 			top_users.append(i[0])
 		return top_users
+	
 	
 	# f= open("retweeterIDs.txt","w+")
 	# def writeToFile(list):

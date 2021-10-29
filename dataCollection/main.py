@@ -46,15 +46,20 @@ def main():
 	
 	for i in range(0,len(hamilton_tweets)):
 		hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
-
+	
 	sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
-	tweets = sample.getAllTweets("1019073448633659393","Afro-Optimist")
+	
 
 
 	# user_ids = sample.getRetweeters("1441982241844785153")
-	user = database.User("1019073448633659393","Afro-Optimist",tweets,"")
-	likers = sample.mostEngagedUsers(user,5,False)
-	print(likers)
+	user_id =  db.highestPercentGrowth(1,datetime.now())
+	tweets = sample.getAllTweets(user_id[0])
+	for tweet in tweets:
+		print(tweet.mentioned_ids)
+	
+	# user = database.User(user_id[0],tweets,"")
+	# likers = sample.mostEngagedUsers(user,5,False)
+	# print(likers)
 	# likers = sample.getLikingUsers("1441982241844785153")
 	# print(likers)
 
@@ -83,7 +88,7 @@ def main():
 		#hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
 	#sample = SampleTwitter.SampleTwitter(consumer_key,consumer_secret,hamilton_tweets)
 	#print(sample.getUserData(open("retweeterIDs.txt",'r').readlines()))
-
+#TODO store how many times users engage with a particular account and store the account user names of the accounts they engage with
 if __name__ == "__main__":
 	main()
 
