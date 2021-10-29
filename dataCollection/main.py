@@ -21,7 +21,7 @@ def main():
 	database_2 = os.getenv('database_2')
 	uid_2 = os.getenv('uid_2')
 	pwd_2 = os.getenv('pwd_2')
-	bearer_token = os.getenv('bearer_token')
+	bearer_token = os.getenv('test_token')
 	db = database.Database(server_1,database_1,uid_1,pwd_1)
 	date = datetime.now()
 	seeds = {}
@@ -43,13 +43,12 @@ def main():
 		hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
 
 	sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
-	user_ids = sample.getRetweeters(hamilton_tweets[0])
-	
-	users = sample.getUsersData(user_ids)
-	print(users[0].tweets)
-	
-	engaged = sample.mostEngagedUsers(users[0], 3,True)
-	print(engaged)
+	user_ids = sample.getRetweeters("1441982241844785153")
+	print(user_ids)
+	# likers = sample.getLikingUsers("1441982241844785153")
+	# print(likers)
+
+
 	#retweeters = []
 	#for tweet in median_tweets:
 		#retweeters.extend(sample.getRetweeters(tweet.IDstr))

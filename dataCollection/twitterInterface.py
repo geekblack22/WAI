@@ -3,6 +3,7 @@ import time
 import database
 from timeit import default_timer as timer
 from collections import Counter
+import requests
 class TwitterInterface:
 
 	"""This class interfaces with the Twitter API"""
@@ -44,10 +45,16 @@ class TwitterInterface:
 		f.close()
 
 	def getRetweeters(self, twitter_id):
-		self.rateLim()
 		print(twitter_id)
+		self.rateLim()
 		return self.api.get_retweeter_ids(twitter_id)
 
+	def getLikingUsers(self,tweet_id):
+		
+		url = "https://api.twitter.com/2/tweets/"+tweet_id+"/liking_users&expansions=pinned_tweet_id&user.fields=created_at&tweet.fields=created_at" 
+		headers = {"Authorization" : "Bearer {}".format(self._bearer_token)}
+		response = requests.get(url,headers= headers)
+		return response
 
 	def  getUsersData(self, account_ids):
 		"""Gets all the information pertaining to the users in the list of user IDs
@@ -142,19 +149,26 @@ class TwitterInterface:
 		tweets = user.tweets
 		account_dict = {}
 		top_users = []
-
+		
 		for i in range(0,len(tweets)):
+			
 			if likes:
 				self.rateLim()
-				accounts = self.client.get_liking_users(tweets[i].IDstr)
+				likers = self.client.get_liking_users(tweets[i].IDstr)
+				print(tweets[i].IDstr,likers)
+				accounts = []
+				if likers[0] is not None:
+					
+					for item in likers[0]:
+						accounts.append(item[0])
 			else:
-				self.rateLim()
 				accounts = self.getRetweeters(tweets[i].IDstr)
-			for j in range(0,len(accounts)):
-				if accounts[j] in account_dict:
-					account_dict[accounts[j]] += 1
+				print(accounts)
+			for account in accounts:
+				if account in account_dict:
+					account_dict[account] += 1
 				else:
-					account_dict[accounts[j]] = 1
+					account_dict[account] = 1
 		k = Counter(account_dict)
  
 			# Finding 3 highest values
