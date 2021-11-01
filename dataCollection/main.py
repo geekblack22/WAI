@@ -52,6 +52,8 @@ def main():
 
 	f = open("firstRealDatapull.txt",'w')
 	for key,value in seeds.items():
+		print(key)
+		print(db.getAllTweetsByUserID(key))
 		engaged_users = sample.mostEngagedUsers(key,10,False)
 		for id in engaged_users:
 			f.write(str(id) + "\n")
