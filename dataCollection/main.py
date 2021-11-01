@@ -29,8 +29,8 @@ def main():
 	db = database.Database(server_1,database_1,uid_1,pwd_1)
 	date = datetime.now()
 	seeds = {}
-	for i in range(15):
-		for user in db.highestPercentGrowth(20,date):
+	for i in range(5):
+		for user in db.highestPercentGrowth(10,date):
 			seeds[user] = 1
 		date = date - timedelta(days = 30)
 	
@@ -41,11 +41,11 @@ def main():
 	#with open("tweetSample.txt",'w') as f:
 		#[print(tweet.IDstr, file=f) for tweet in median_tweets]
 	
-	with open("dataCollection/tweetSample.txt",'r') as f:
-			hamilton_tweets =  f.readlines()
+	#with open("dataCollection/tweetSample.txt",'r') as f:
+			#hamilton_tweets =  f.readlines()
 	
-	for i in range(0,len(hamilton_tweets)):
-		hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
+	#for i in range(0,len(hamilton_tweets)):
+		#hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
 	
 	sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
 	
