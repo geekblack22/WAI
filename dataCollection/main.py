@@ -6,7 +6,7 @@ import sys
 import twitterInterface
 from dotenv import load_dotenv
 import os 
-
+import time
 
 
 
@@ -34,7 +34,7 @@ def main():
 			seeds[user] = 1
 		date = date - timedelta(days = 30)
 	
-	[print(key) for key,value in seeds.items()]
+	#[print(key) for key,value in seeds.items()]
 
 	
 
@@ -50,12 +50,16 @@ def main():
 	sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
 	
 
+	f = open("firstRealDatapull.txt",'w')
+	for key,value in seeds.items():
+		engaged_users = sample.mostEngagedUsers(key,10,False)
+		for id in engaged_users:
+			f.write(str(id) + "\n")
+		break
+	
+	f.close()
 
 	# user_ids = sample.getRetweeters("1441982241844785153")
-	user_id =  db.highestPercentGrowth(1,datetime.now())
-	tweets = sample.getAllTweets(user_id[0])
-	for tweet in tweets:
-		print(tweet.mentioned_ids)
 	
 	# user = database.User(user_id[0],tweets,"")
 	# likers = sample.mostEngagedUsers(user,5,False)

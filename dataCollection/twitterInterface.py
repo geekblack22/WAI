@@ -76,11 +76,12 @@ class TwitterInterface:
 			a list of twitter objects
 		 """
 		self.rateLim()
-		tweets = tweepy.Cursor(self.api.user_timeline, user_id = id).items(200)
+		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(200)
 		user_tweets = []
 		for tweet in tweets:
 			photo_count, contains_video = self._numMedia(tweet)
 			creation_date = tweet.created_at
+			retweets = tweet.retweet_count
 			hashtags = tweet.entities.get("hashtags")
 			mentions = tweet.entities.get("user_mentions")
 			mentioned_ids = []
@@ -89,14 +90,14 @@ class TwitterInterface:
 			
 
 			tweet_id_str = tweet.id_str
-			tweet_object = database.Tweet(tweet_id_str,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,posterID= id,mentioned_ids = mentioned_ids)
+			tweet_object = database.Tweet(tweet_id_str,retweets = retweets,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,posterID= id,mentioned_ids = mentioned_ids)
 			user_tweets.append(tweet_object)
 		return user_tweets
 
 	def rateLim(self):
 		now = timer()
-		if (1 - (now - self.lastQ) > 0):
-			time.sleep(1 - (now - self.lastQ))
+		if (.35 - (now - self.lastQ) > 0):
+			time.sleep(.35 - (now - self.lastQ))
 		self.lastQ = timer()
 
 	def _numMedia(self,tweet):
@@ -122,7 +123,7 @@ class TwitterInterface:
 				contains_video = True
 		return photo_count,contains_video
 	def mostEngagedUsers(self, user,num_users,likes):
-		tweets = user.tweets
+		tweets = self.getAllTweets(user)
 		account_dict = {}
 		top_users = []
 		for i in range(0,len(tweets)):
@@ -135,8 +136,12 @@ class TwitterInterface:
 					for item in likers[0]:
 						accounts.append(item[0])
 			else:
-				accounts = self.getRetweeters(tweets[i].IDstr)
-				print(accounts)
+				if(tweets[i].retweets > 0):
+					print(tweets[i].retweets)
+					accounts = self.getRetweeters(tweets[i].IDstr)
+					print(accounts)
+				else:
+					print("No retweets")
 			for account in accounts:
 				if account in account_dict:
 					account_dict[account] += 1
