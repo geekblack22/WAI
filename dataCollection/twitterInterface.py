@@ -128,8 +128,7 @@ class TwitterInterface:
 		tweets = self.getAllTweets(user)
 		if len(tweets) == 0:
 			return {}
-		account_d = numpy.array()
-		account_dict = {}
+		account_d = np.array([])
 		top_users = []
 		for i in range(0,len(tweets)):
 			accounts = []
@@ -140,14 +139,13 @@ class TwitterInterface:
 			else:
 				print("No retweets")
 			for account in accounts:
-				account_d.append(account)
+				account_d = np.append(account_d, account)
 		unique_elements, frequency = np.unique(account_d, return_counts=True)
 		sorted_indexes = np.argsort(frequency)[::-1]
+		sorted_freq = np.sort(frequency)[::-1]
 		sorted_by_freq = unique_elements[sorted_indexes]
-		print(sorted_by_freq)
- 
-		#high = k.most_common(min(int(percent * len(k)), num_users))
-		return 
+		ret = min(int(sorted_by_freq.size*percent), num_users)
+		return sorted_by_freq[:ret], sorted_freq[:ret]
 	
 	
 	# f= open("retweeterIDs.txt","w+")

@@ -43,8 +43,8 @@ def main():
 	for key,value in seeds.items():
 		print(n)
 		n += 1
-		engaged_users = sample.mostEngagedUsers(key,300,.05)
-		for key_i,value_i in engaged_users:
+		engaged_users, freqs = sample.mostEngagedUsers(key,300,.05)
+		for key_i,value_i in zip(engaged_users,freqs):
 			superTable[key_i] = (value_i, key)
 	
 	table = open('table.pickle', 'wb')
