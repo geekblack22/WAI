@@ -51,8 +51,7 @@ class TwitterInterface:
 	def scrapeAllTweets(self,user_id):
 		tweets = []
 		hashtags = ""
-		for tweet in enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items()):
-
+		for i,tweet in enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items()):
 			photo_count,contains_video = self.scrapeMedia(tweet)
 			if not (tweet.hashtags  is None):
 				hashtags = ",".join(tweet.hashtags)
@@ -83,10 +82,7 @@ class TwitterInterface:
 
             
 		return photo_count,contains_video
-    # if i>100:
-    #     break
-		tweets_list1.append([tweet.date, tweet.id, tweet.content, tweet.user.username])
-		ids.append(tweet.id)
+  
 
 	def retrieveUsers(self,list):
 		"""Gets all the information about a list of users 
@@ -130,7 +126,7 @@ class TwitterInterface:
 			if not (hashtags  is None):
 				hashtags = ",".join(hashtags)
 			else:
-				hashtags = ""
+				hashtags = " "
 			mentions = tweet.entities.get("user_mentions")
 			mentioned_ids = []
 			for mention in mentions:

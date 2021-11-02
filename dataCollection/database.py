@@ -69,6 +69,16 @@ class Tweet:
 		self.list_of_hashtags = list_of_hashtags
 		self.mentioned_ids = mentioned_ids
 		self.num_photos = num_photos
+	def __str__(self):
+		content = ( "TweetID: "+ str(self.IDstr)
+		+" posterID: "+ str(self.posterID)
+		+" retweets: "+str(self.retweets)
+		+" time: " + str(self.time)
+		+" contains_video: " + str(self.contains_video)
+		+" list_of_hashtags: " + str(self.list_of_hashtags)
+		+" num_photos: "  + str(self.num_photos)
+		+" mentioned_ids: " + str(self.mentioned_ids))
+		return content
 
 def retweet_compare(tweet1, tweet2):
 	return tweet1.retweets - tweet2.retweets
