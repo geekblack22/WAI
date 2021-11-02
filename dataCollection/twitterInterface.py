@@ -1,4 +1,6 @@
 import tweepy
+import numpy as np
+import sys
 import time
 import database
 from timeit import default_timer as timer
@@ -12,7 +14,7 @@ class TwitterInterface:
 		self.consumer_key = consumer_key
 		self.consumer_secret = consumer_secret
 		self._auth = tweepy.AppAuthHandler(consumer_key, consumer_secret)
-		self.api = tweepy.API(self._auth)
+		self.api = tweepy.API(self._auth, wait_on_rate_limit=True)
 		self.lastQ = timer()
 		self._bearer_token = bearer_token
 		self.client = tweepy.Client(bearer_token=self._bearer_token)
@@ -76,7 +78,7 @@ class TwitterInterface:
 			a list of twitter objects
 		 """
 		self.rateLim()
-		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(200)
+		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(50)
 		user_tweets = []
 		for tweet in tweets:
 			photo_count, contains_video = self._numMedia(tweet)
@@ -122,41 +124,30 @@ class TwitterInterface:
 			if media.get('type',None) == "video":
 				contains_video = True
 		return photo_count,contains_video
-	def mostEngagedUsers(self, user,num_users,likes):
+	def mostEngagedUsers(self, user,num_users, percent):
 		tweets = self.getAllTweets(user)
+		if len(tweets) == 0:
+			return {}
+		account_d = numpy.array()
 		account_dict = {}
 		top_users = []
 		for i in range(0,len(tweets)):
-			if likes:
-				self.rateLim()
-				likers = self.client.get_liking_users(tweets[i].IDstr)
-				print(tweets[i].IDstr,likers)
-				accounts = []
-				if likers[0] is not None:
-					for item in likers[0]:
-						accounts.append(item[0])
+			accounts = []
+			if(tweets[i].retweets > 0):
+				print(tweets[i].retweets)
+				accounts = self.getRetweeters(tweets[i].IDstr)
+				print(accounts)
 			else:
-				if(tweets[i].retweets > 0):
-					print(tweets[i].retweets)
-					accounts = self.getRetweeters(tweets[i].IDstr)
-					print(accounts)
-				else:
-					print("No retweets")
+				print("No retweets")
 			for account in accounts:
-				if account in account_dict:
-					account_dict[account] += 1
-				else:
-					account_dict[account] = 1
-		k = Counter(account_dict)
+				account_d.append(account)
+		unique_elements, frequency = np.unique(account_d, return_counts=True)
+		sorted_indexes = np.argsort(frequency)[::-1]
+		sorted_by_freq = unique_elements[sorted_indexes]
+		print(sorted_by_freq)
  
-			# Finding 3 highest values
-		high = k.most_common(num_users)
-		print(account_dict)
-		print("\n")
-		print(high)
-		for i in high:
-			top_users.append(i[0])
-		return top_users
+		#high = k.most_common(min(int(percent * len(k)), num_users))
+		return 
 	
 	
 	# f= open("retweeterIDs.txt","w+")
