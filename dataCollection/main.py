@@ -49,6 +49,19 @@ def main():
 	
 	table = open('table.pickle', 'wb')
 	pickle.dump(superTable,table)
+	# tweets = sample.scrapeAllTweets('2318647908')
+	# for tweet in tweets:
+		
+	# 	print(
+	# 	 "TweetID: "+ str(tweet.IDstr)
+	# 	+" posterID: "+ str(tweet.posterID)
+	# 	+" retweets: "+str(tweet.retweets)
+	# 	+" time: " + str(tweet.time)
+	# 	+" contains_video: " + str(tweet.contains_video)
+	# 	+" list_of_hashtags: " + str(tweet.list_of_hashtags)
+	# 	+" num_photos: "  + str(tweet.num_photos)
+	# 	+" mentioned_ids: " + str(tweet.mentioned_ids)
+	# 	)
 
 if __name__ == "__main__":
 	main()

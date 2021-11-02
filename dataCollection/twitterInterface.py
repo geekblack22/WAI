@@ -6,6 +6,8 @@ import database
 from timeit import default_timer as timer
 from collections import Counter
 import requests
+import snscrape.modules.twitter as sntwitter
+
 class TwitterInterface:
 
 	"""This class interfaces with the Twitter API"""
@@ -46,6 +48,45 @@ class TwitterInterface:
 		for i in range(0, len(account_ids)):
 			results.extend(self.retrieveUsers([account_ids[i]]))
 		return results
+	def scrapeAllTweets(self,user_id):
+		tweets = []
+		hashtags = ""
+		for tweet in enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items()):
+
+			photo_count,contains_video = self.scrapeMedia(tweet)
+			if not (tweet.hashtags  is None):
+				hashtags = ",".join(tweet.hashtags)
+			tweets.append(
+			database.Tweet(str(tweet.id),
+			retweets=tweet.retweetCount,
+			time = tweet.date,contains_video = contains_video, 
+			num_photos= photo_count,posterID= user_id,
+			list_of_hashtags= hashtags,
+			mentioned_ids = self.getMentionedIDs(tweet.mentionedUsers))
+			)
+		return tweets
+	def getMentionedIDs(self,mentions):
+		ids = []
+		if not (mentions is None):
+			for user in mentions:
+				ids.append(user.id)
+		return ids
+
+	def scrapeMedia(self,tweet):
+		contains_video = False
+		photo_count = 0
+		if not (tweet.media is None):
+				for medium in tweet.media:
+					if isinstance(medium, sntwitter.Photo):
+						photo_count+=1
+					contains_video = (isinstance(medium, sntwitter.Video) or isinstance(medium, sntwitter.VideoVariant))
+
+            
+		return photo_count,contains_video
+    # if i>100:
+    #     break
+		tweets_list1.append([tweet.date, tweet.id, tweet.content, tweet.user.username])
+		ids.append(tweet.id)
 
 	def retrieveUsers(self,list):
 		"""Gets all the information about a list of users 
@@ -84,7 +125,12 @@ class TwitterInterface:
 			photo_count, contains_video = self._numMedia(tweet)
 			creation_date = tweet.created_at
 			retweets = tweet.retweet_count
+			
 			hashtags = tweet.entities.get("hashtags")
+			if not (hashtags  is None):
+				hashtags = ",".join(hashtags)
+			else:
+				hashtags = ""
 			mentions = tweet.entities.get("user_mentions")
 			mentioned_ids = []
 			for mention in mentions:
