@@ -51,7 +51,12 @@ class TwitterInterface:
 	def scrapeAllTweets(self,user_id):
 		tweets = []
 		hashtags = ""
-		for i,tweet in enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items()):
+		user_info = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
+		for i,tweet in user_info:
+			
+			if i>500:
+				break
+		
 			photo_count,contains_video = self.scrapeMedia(tweet)
 			if not (tweet.hashtags  is None):
 				hashtags = ",".join(tweet.hashtags)
@@ -63,6 +68,25 @@ class TwitterInterface:
 			list_of_hashtags= hashtags,
 			mentioned_ids = self.getMentionedIDs(tweet.mentionedUsers))
 			)
+		profile_info = enumerate(sntwitter.TwitterProfileScraper(user_id, isUserId = True).get_items())
+		for i,tweet in profile_info:
+			if i>500:
+				break
+			
+			retweet = tweet.retweetedTweet
+			if not (retweet is None):
+				photo_count,contains_video = self.scrapeMedia(retweet)
+				if not (retweet.hashtags  is None):
+					hashtags = ",".join(tweet.hashtags)
+				user = retweet.user
+				tweets.append(
+				database.Tweet(str(retweet.id),
+				retweets=retweet.retweetCount,
+				time = retweet.date,contains_video = contains_video, 
+				num_photos= photo_count,
+				list_of_hashtags= hashtags,
+				mentioned_ids = self.getMentionedIDs(tweet.mentionedUsers),isRetweet=True)
+				)
 		return tweets
 	def getMentionedIDs(self,mentions):
 		ids = []
@@ -134,7 +158,7 @@ class TwitterInterface:
 			
 
 			tweet_id_str = tweet.id_str
-			tweet_object = database.Tweet(tweet_id_str,retweets = retweets,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,posterID= id,mentioned_ids = mentioned_ids)
+			tweet_object = database.Tweet(tweet_id_str,retweets = retweets,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,mentioned_ids = mentioned_ids)
 			user_tweets.append(tweet_object)
 		return user_tweets
 
