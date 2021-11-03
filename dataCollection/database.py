@@ -43,8 +43,8 @@ class Database:
 		return [row[0] for row in itertools.islice(lst,n)]
 
 	def insertUser(self,user):
-		self.cursor.execute("""INSERT INTO [dbo].[Users] ([IDStr],[creationDate]) VALUES(?,?)""",
-		(user.IDstr,user.creationDate)
+		self.cursor.execute("""INSERT INTO [dbo].[Users] ([IDStr],[creationDate,engagement]) VALUES(?,?,?)""",
+		(user.IDstr,user.creationDate,str(user.engagement))
 		)
 	def instertListofUsers(self,users):
 		for i in range(0,len(users)):

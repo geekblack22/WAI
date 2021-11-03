@@ -78,7 +78,7 @@ class TwitterInterface:
 			a list of twitter objects
 		 """
 		self.rateLim()
-		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(50)
+		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(1500)
 		user_tweets = []
 		for tweet in tweets:
 			photo_count, contains_video = self._numMedia(tweet)
@@ -124,7 +124,7 @@ class TwitterInterface:
 			if media.get('type',None) == "video":
 				contains_video = True
 		return photo_count,contains_video
-	def mostEngagedUsers(self, user,num_users, percent):
+	def mostEngagedUsers(self, user,num_users, percent, n=-1):
 		tweets = self.getAllTweets(user)
 		if len(tweets) == 0:
 			return {}
@@ -132,6 +132,8 @@ class TwitterInterface:
 		top_users = []
 		for i in range(0,len(tweets)):
 			accounts = []
+			if n != -1:
+				print(str(n) + " users done, " + str(i) + " tweets in of " + str(len(tweets)))
 			if(tweets[i].retweets > 0):
 				print(tweets[i].retweets)
 				accounts = self.getRetweeters(tweets[i].IDstr)
