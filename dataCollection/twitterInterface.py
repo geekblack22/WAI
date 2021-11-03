@@ -54,11 +54,8 @@ class TwitterInterface:
 		user_info = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
 		for i,tweet in user_info:
 			
-			if i>500:
-				break
-		
 			photo_count,contains_video = self.scrapeMedia(tweet)
-			if not (tweet.hashtags  is None):
+			if tweet.hashtags is not None:
 				hashtags = ",".join(tweet.hashtags)
 			tweets.append(
 			database.Tweet(str(tweet.id),
@@ -70,9 +67,6 @@ class TwitterInterface:
 			)
 		profile_info = enumerate(sntwitter.TwitterProfileScraper(user_id, isUserId = True).get_items())
 		for i,tweet in profile_info:
-			if i>500:
-				break
-			
 			retweet = tweet.retweetedTweet
 			if not (retweet is None):
 				photo_count,contains_video = self.scrapeMedia(retweet)
@@ -148,7 +142,7 @@ class TwitterInterface:
 			
 			hashtags = tweet.entities.get("hashtags")
 			if not (hashtags  is None):
-				hashtags = ",".join(hashtags)
+				hashtags = ",".join([item['text'] for item in hashtags])
 			else:
 				hashtags = " "
 			mentions = tweet.entities.get("user_mentions")
