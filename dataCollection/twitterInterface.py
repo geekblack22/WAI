@@ -6,6 +6,8 @@ import database
 from timeit import default_timer as timer
 from collections import Counter
 import requests
+import snscrape.modules.twitter as sntwitter
+
 class TwitterInterface:
 
 	"""This class interfaces with the Twitter API"""
@@ -46,6 +48,65 @@ class TwitterInterface:
 		for i in range(0, len(account_ids)):
 			results.extend(self.retrieveUsers([account_ids[i]]))
 		return results
+	def scrapeAllTweets(self,user_id):
+		tweets = []
+		hashtags = ""
+		user_info = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
+		for i,tweet in user_info:
+			
+			if i>500:
+				break
+		
+			photo_count,contains_video = self.scrapeMedia(tweet)
+			if not (tweet.hashtags  is None):
+				hashtags = ",".join(tweet.hashtags)
+			tweets.append(
+			database.Tweet(str(tweet.id),
+			retweets=tweet.retweetCount,
+			time = tweet.date,contains_video = contains_video, 
+			num_photos= photo_count,posterID= user_id,
+			list_of_hashtags= hashtags,
+			mentioned_ids = self.getMentionedIDs(tweet.mentionedUsers))
+			)
+		profile_info = enumerate(sntwitter.TwitterProfileScraper(user_id, isUserId = True).get_items())
+		for i,tweet in profile_info:
+			if i>500:
+				break
+			
+			retweet = tweet.retweetedTweet
+			if not (retweet is None):
+				photo_count,contains_video = self.scrapeMedia(retweet)
+				if not (retweet.hashtags  is None):
+					hashtags = ",".join(tweet.hashtags)
+				user = retweet.user
+				tweets.append(
+				database.Tweet(str(retweet.id),
+				retweets=retweet.retweetCount,
+				time = retweet.date,contains_video = contains_video, 
+				num_photos= photo_count,
+				list_of_hashtags= hashtags,
+				mentioned_ids = self.getMentionedIDs(tweet.mentionedUsers),isRetweet=True)
+				)
+		return tweets
+	def getMentionedIDs(self,mentions):
+		ids = []
+		if not (mentions is None):
+			for user in mentions:
+				ids.append(user.id)
+		return ids
+
+	def scrapeMedia(self,tweet):
+		contains_video = False
+		photo_count = 0
+		if not (tweet.media is None):
+				for medium in tweet.media:
+					if isinstance(medium, sntwitter.Photo):
+						photo_count+=1
+					contains_video = (isinstance(medium, sntwitter.Video) or isinstance(medium, sntwitter.VideoVariant))
+
+            
+		return photo_count,contains_video
+  
 
 	def retrieveUsers(self,list):
 		"""Gets all the information about a list of users 
@@ -84,7 +145,12 @@ class TwitterInterface:
 			photo_count, contains_video = self._numMedia(tweet)
 			creation_date = tweet.created_at
 			retweets = tweet.retweet_count
+			
 			hashtags = tweet.entities.get("hashtags")
+			if not (hashtags  is None):
+				hashtags = ",".join(hashtags)
+			else:
+				hashtags = " "
 			mentions = tweet.entities.get("user_mentions")
 			mentioned_ids = []
 			for mention in mentions:
@@ -92,7 +158,7 @@ class TwitterInterface:
 			
 
 			tweet_id_str = tweet.id_str
-			tweet_object = database.Tweet(tweet_id_str,retweets = retweets,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,posterID= id,mentioned_ids = mentioned_ids)
+			tweet_object = database.Tweet(tweet_id_str,retweets = retweets,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,mentioned_ids = mentioned_ids)
 			user_tweets.append(tweet_object)
 		return user_tweets
 

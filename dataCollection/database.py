@@ -46,6 +46,8 @@ class Database:
 		self.cursor.execute("""INSERT INTO [dbo].[Users] ([IDStr],[creationDate,engagement]) VALUES(?,?,?)""",
 		(user.IDstr,user.creationDate,str(user.engagement))
 		)
+		user.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
+		return user
 	def instertListofUsers(self,users):
 		for i in range(0,len(users)):
 			self.insertUser(users[i])
@@ -53,27 +55,42 @@ class Database:
 		self.cursor.execute("""INSERT INTO [dbo].[Tweet] ([IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets]) VALUES(?,?,?,?,?,?,?)""",
 		(tweet.IDstr,tweet.contains_videos,tweet.num_photos,tweet.list_of_hashtags,tweet.time,tweet.posterID,tweet.retweets)
 		)
+		tweet.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
+		return tweet
 	def instertListofTweets(self,tweets):
 		for i in range(0,len(tweets)):
 			self.insertTweet(tweets[i])
 def dtto(t):
 	return "'" + str(t).split(' ')[0] + "'"
 class Tweet:
-	def __init__(self, IDstr, retweets=0, time=0, contains_videos=False, num_photos=0,list_of_hashtags=[],posterID="",mentioned_ids=[]):
-
+	def __init__(self, IDstr, ID = 0,retweets=0, time=0, contains_video=False, num_photos=0,list_of_hashtags="",posterID="",mentioned_ids=[],isRetweet = False):
+		self.ID = ID
 		self.IDstr = IDstr	   #string
 		self.posterID = posterID
 		self.retweets = retweets
 		self.time = time
-		self.contains_videos = contains_videos
+		self.contains_video = contains_video
 		self.list_of_hashtags = list_of_hashtags
 		self.mentioned_ids = mentioned_ids
 		self.num_photos = num_photos
+		self.isRetweet = isRetweet
+	def __str__(self):
+		content = ( "TweetID: "+ str(self.IDstr)
+		+" posterID: "+ str(self.posterID)
+		+" retweets: "+str(self.retweets)
+		+" time: " + str(self.time)
+		+" contains_video: " + str(self.contains_video)
+		+" list_of_hashtags: " + str(self.list_of_hashtags)
+		+" num_photos: "  + str(self.num_photos)
+		+" mentioned_ids: " + str(self.mentioned_ids)
+		+" isRetweet: " + str(self.isRetweet))
+		return content
 
 def retweet_compare(tweet1, tweet2):
 	return tweet1.retweets - tweet2.retweets
 class User:
-	def __init__(self, IDstr, tweets,creationDate):	
+	def __init__(self, IDstr, tweets,creationDate, ID=0):	
+		self.ID = ID
 		self.IDstr = IDstr	   #string
 		self.tweets = tweets
 		self.creationDate = creationDate	#dateTime
