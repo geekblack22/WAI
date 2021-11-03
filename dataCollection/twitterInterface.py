@@ -51,6 +51,7 @@ class TwitterInterface:
 	def scrapeAllTweets(self,user_id,num_tweets=0,user_info = None):
 		tweets = []
 		hashtags = ""
+
 		
 		if user_info is None:
 			user_info = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
@@ -58,8 +59,9 @@ class TwitterInterface:
 			if num_tweets > 0:
 				if i > num_tweets:
 					break
+
 			photo_count,contains_video = self.scrapeMedia(tweet)
-			if not (tweet.hashtags  is None):
+			if tweet.hashtags is not None:
 				hashtags = ",".join(tweet.hashtags)
 			tweets.append(
 			database.Tweet(str(tweet.id),
@@ -71,6 +73,7 @@ class TwitterInterface:
 			)
 		profile_info = enumerate(sntwitter.TwitterProfileScraper(user_id, isUserId = True).get_items())
 		for i,tweet in profile_info:
+
 			if num_tweets > 0:
 				if i > num_tweets:
 					break
@@ -91,11 +94,7 @@ class TwitterInterface:
 				)
 		return tweets
 	def getMentionedIDs(self,mentions):
-		ids = []
-		if not (mentions is None):
-			for user in mentions:
-				ids.append(user.id)
-		return ids
+		return [user.id for user in mentions] if mentions is not None else []
 
 	def scrapeMedia(self,tweet):
 		contains_video = False
@@ -106,7 +105,7 @@ class TwitterInterface:
 						photo_count+=1
 					contains_video = (isinstance(medium, sntwitter.Video) or isinstance(medium, sntwitter.VideoVariant))
 
-            
+			
 		return photo_count,contains_video
   
 
@@ -149,7 +148,9 @@ class TwitterInterface:
 			a list of twitter objects
 		 """
 		self.rateLim()
-		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(1000)
+
+		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(1500)
+
 		user_tweets = []
 		for tweet in tweets:
 			photo_count, contains_video = self._numMedia(tweet)
@@ -157,12 +158,10 @@ class TwitterInterface:
 			retweets = tweet.retweet_count
 			
 			hashtags = tweet.entities.get("hashtags")
-			
-			if hashtags != []:
-				print(hashtags)
-				hashtags = hashtags[0]
-				print(hashtags['text'])
-				hashtags = ",".join(hashtags['text'])
+
+			if not (hashtags  is None):
+				hashtags = ",".join([item['text'] for item in hashtags])
+
 			else:
 				hashtags = " "
 			mentions = tweet.entities.get("user_mentions")
@@ -204,7 +203,7 @@ class TwitterInterface:
 			if media.get('type',None) == "video":
 				contains_video = True
 		return photo_count,contains_video
-	def mostEngagedUsers(self, user,num_users, percent):
+	def mostEngagedUsers(self, user,num_users, percent, n=-1):
 		tweets = self.getAllTweets(user)
 		if len(tweets) == 0:
 			return {}
@@ -212,6 +211,8 @@ class TwitterInterface:
 		top_users = []
 		for i in range(0,len(tweets)):
 			accounts = []
+			if n != -1:
+				print(str(n) + " users done, " + str(i) + " tweets in of " + str(len(tweets)))
 			if(tweets[i].retweets > 0):
 				print(tweets[i].retweets)
 				accounts = self.getRetweeters(tweets[i].IDstr)

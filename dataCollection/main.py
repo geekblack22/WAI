@@ -9,8 +9,6 @@ import os
 import time
 import pickle
 
-
-
 def main():
 	load_dotenv()
 	
@@ -28,6 +26,7 @@ def main():
 	
 
 	db = database.Database(server_1,database_1,uid_1,pwd_1)
+	db2 = database.Database(server_2,database_2,uid_2,pwd_2)
 	date = datetime.now()
 	seeds = {}
 	for i in range(15):
@@ -38,15 +37,20 @@ def main():
 	sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
 	
 
-	# superTable = {}
-	# n = 0
-	# for key,value in seeds.items():
-	# 	print(n)
-	# 	n += 1
-	# 	engaged_users, freqs = sample.mostEngagedUsers(key,300,.05)
-	# 	for key_i,value_i in zip(engaged_users,freqs):
-	# 		superTable[key_i] = (value_i, key)
+	print(len(seeds))
+	superTable = {}
+	n = 0
+	for key,value in seeds.items():
+		engaged_users, freqs = sample.mostEngagedUsers(key,300,.05,n)
+		for key_i,value_i in zip(engaged_users,freqs):
+			if key_i in superTable:
+				(superTable[key_i]).append((value_i,key))
+			else:
+				superTable[key_i] = [(value_i, key)]
+			print(superTable[key_i])
+		n += 1
 	
+
 	# table = open('table.pickle', 'wb')
 	# pickle.dump(superTable,table)
 	#tweets = sample.scrapeAllTweets('2318647908',all_tweets=False,num_tweets=1000)
@@ -57,6 +61,10 @@ def main():
 	print(user.tweet_count)
 	for tweet in tweets:
 	 	print(tweet)
+
+	table = open('table.pickle', 'wb')
+	pickle.dump(superTable,table)
+
 if __name__ == "__main__":
 	main()
 
