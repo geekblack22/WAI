@@ -48,15 +48,16 @@ class TwitterInterface:
 		for i in range(0, len(account_ids)):
 			results.extend(self.retrieveUsers([account_ids[i]]))
 		return results
-	def scrapeAllTweets(self,user_id):
+	def scrapeAllTweets(self,user_id,num_tweets=0,user_info = None):
 		tweets = []
 		hashtags = ""
-		user_info = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
-		for i,tweet in user_info:
-			
-			if i>500:
-				break
 		
+		if user_info is None:
+			user_info = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
+		for i,tweet in user_info:
+			if num_tweets > 0:
+				if i > num_tweets:
+					break
 			photo_count,contains_video = self.scrapeMedia(tweet)
 			if not (tweet.hashtags  is None):
 				hashtags = ",".join(tweet.hashtags)
@@ -64,20 +65,21 @@ class TwitterInterface:
 			database.Tweet(str(tweet.id),
 			retweets=tweet.retweetCount,
 			time = tweet.date,contains_video = contains_video, 
-			num_photos= photo_count,posterID= user_id,
+			num_photos= photo_count,
 			list_of_hashtags= hashtags,
 			mentioned_ids = self.getMentionedIDs(tweet.mentionedUsers))
 			)
 		profile_info = enumerate(sntwitter.TwitterProfileScraper(user_id, isUserId = True).get_items())
 		for i,tweet in profile_info:
-			if i>500:
-				break
-			
+			if num_tweets > 0:
+				if i > num_tweets:
+					break
 			retweet = tweet.retweetedTweet
 			if not (retweet is None):
 				photo_count,contains_video = self.scrapeMedia(retweet)
 				if not (retweet.hashtags  is None):
-					hashtags = ",".join(tweet.hashtags)
+					print(retweet.hashtags)
+					hashtags = ",".join(retweet.hashtags)
 				user = retweet.user
 				tweets.append(
 				database.Tweet(str(retweet.id),
@@ -126,7 +128,15 @@ class TwitterInterface:
 			tweets =  self.getAllTweets(list[i])
 			users[i] = database.User(list[i],tweets,response.created_at)
 		return users
-
+	def scrapeUserData(self,user_id):
+		User = None
+		user_data = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
+		for i,tweet in user_data:
+			if i > 0:
+				break
+			user = tweet.user
+			User = database.User(user_id,self.scrapeAllTweets(user_id,user_info= user_data),user.created,user.followersCount,user.statusesCount)
+		return User
 	def getAllTweets(self,id):
 		"""gets all the tweets of a user  
 		Parameters
@@ -139,7 +149,7 @@ class TwitterInterface:
 			a list of twitter objects
 		 """
 		self.rateLim()
-		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(50)
+		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(1000)
 		user_tweets = []
 		for tweet in tweets:
 			photo_count, contains_video = self._numMedia(tweet)
@@ -147,8 +157,12 @@ class TwitterInterface:
 			retweets = tweet.retweet_count
 			
 			hashtags = tweet.entities.get("hashtags")
-			if not (hashtags  is None):
-				hashtags = ",".join(hashtags)
+			
+			if hashtags != []:
+				print(hashtags)
+				hashtags = hashtags[0]
+				print(hashtags['text'])
+				hashtags = ",".join(hashtags['text'])
 			else:
 				hashtags = " "
 			mentions = tweet.entities.get("user_mentions")
@@ -158,7 +172,7 @@ class TwitterInterface:
 			
 
 			tweet_id_str = tweet.id_str
-			tweet_object = database.Tweet(tweet_id_str,retweets = retweets,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,mentioned_ids = mentioned_ids)
+			tweet_object = database.Tweet(tweet_id_str,retweets = retweets,list_of_hashtags= hashtags,time=creation_date,contains_video = contains_video,num_photos= photo_count,mentioned_ids = mentioned_ids)
 			user_tweets.append(tweet_object)
 		return user_tweets
 
@@ -214,86 +228,3 @@ class TwitterInterface:
 		return sorted_by_freq[:ret], sorted_freq[:ret]
 	
 	
-	# f= open("retweeterIDs.txt","w+")
-	# def writeToFile(list):
-	#	 for i in range(0,len(list)):
-	#		  print(list[i])
-	#		  f.write(str(list[i]) + ",")
-	#	 f.write("\n")
-	# for i in range(0,5):
-	#	 try:
-	#		 result = api.get_retweeter_ids(hamilton_tweets[i])
-	#		 time.sleep(.25)
-	#		 writeToFile(result)
-	#	 except:
-	#		 result = []
-		
-	# results = api.get_retweeter_ids(hamilton_tweets[4])
-	# # result = api.get_retweeter_ids(id)
-
-	# with open("retweeterIDs.txt",'r') as f:
-	# account_ids =  f.readlines()
-	# #print(twitter_ids)
-
-	# def retrieveUsers(list):
-	#	 users = [None]*len(list)
-	#	 for i in range(0,len(list)):
-	#		 print(list[i])
-	#		 response = api.get_user(id = list[i])
-	#		 tweets = api.user_timeline(user_id = list[i],count = 3200,include_rts = True)
-		
-	#		 users[i] = user.User(list[i],response.screen_name,tweets,response.created_at)
-			
-	#	 return users
-	# results = [None] * len(twitter_ids)
-	# for i in range(0,len(twitter_ids)):
-	#	 results[i] = twitter_ids[i].split(',')
-	#	 results[i].remove("\n")
-	# retrieveUsers(results[1])
-	# # print(results)
-
-
-		# f.close()
-
-
-
-	# f= open("retweeterIDs.txt","w+")
-	# def writeToFile(list):
-	#	 for i in range(0,len(list)):
-	#		  print(list[i])
-	#		  f.write(str(list[i]) + ",")
-	#	 f.write("\n")
-	# for i in range(0,5):
-	#	 try:
-	#		 result = api.get_retweeter_ids(hamilton_tweets[i])
-	#		 time.sleep(.25)
-	#		 writeToFile(result)
-	#	 except:a list of twitter objects
-	#		 result = []
-		
-	# results = api.get_retweeter_ids(hamilton_tweets[4])
-	# # result = api.get_retweeter_ids(id)
-
-	# with open("retweeterIDs.txt",'r') as f:
-	# account_ids =  f.readlines()
-	# #print(twitter_ids)
-
-	# def retrieveUsers(list):
-	#	 users = [None]*len(list)
-	#	 for i in range(0,len(list)):
-	#		 print(list[i])
-	#		 response = api.get_user(id = list[i])
-	#		 tweets = api.user_timeline(user_id = list[i],count = 3200,include_rts = True)
-		
-	#		 users[i] = user.User(list[i],response.screen_name,tweets,response.created_at)
-			
-	#	 return users
-	# results = [None] * len(twitter_ids)
-	# for i in range(0,len(twitter_ids)):
-	#	 results[i] = twitter_ids[i].split(',')
-	#	 results[i].remove("\n")
-	# retrieveUsers(results[1])
-	# # print(results)
-
-
-		# f.close()

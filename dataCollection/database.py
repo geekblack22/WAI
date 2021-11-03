@@ -85,8 +85,10 @@ class Tweet:
 def retweet_compare(tweet1, tweet2):
 	return tweet1.retweets - tweet2.retweets
 class User:
-	def __init__(self, IDstr, tweets,creationDate, ID=0):	
+	def __init__(self, IDstr, tweets,creationDate, follower_count,tweet_count,ID=0):	
 		self.ID = ID
 		self.IDstr = IDstr	   #string
 		self.tweets = tweets
 		self.creationDate = creationDate	#dateTime
+		self.follower_count = follower_count
+		self.tweet_count = tweet_count
