@@ -46,6 +46,8 @@ class Database:
 		self.cursor.execute("""INSERT INTO [dbo].[Users] ([IDStr],[creationDate]) VALUES(?,?)""",
 		(user.IDstr,user.creationDate)
 		)
+		user.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
+		return user
 	def instertListofUsers(self,users):
 		for i in range(0,len(users)):
 			self.insertUser(users[i])
@@ -53,6 +55,8 @@ class Database:
 		self.cursor.execute("""INSERT INTO [dbo].[Tweet] ([IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets]) VALUES(?,?,?,?,?,?,?)""",
 		(tweet.IDstr,tweet.contains_videos,tweet.num_photos,tweet.list_of_hashtags,tweet.time,tweet.posterID,tweet.retweets)
 		)
+		tweet.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
+		return tweet
 	def instertListofTweets(self,tweets):
 		for i in range(0,len(tweets)):
 			self.insertTweet(tweets[i])
