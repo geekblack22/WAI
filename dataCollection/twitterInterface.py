@@ -104,7 +104,7 @@ class TwitterInterface:
 						photo_count+=1
 					contains_video = (isinstance(medium, sntwitter.Video) or isinstance(medium, sntwitter.VideoVariant))
 
-            
+			
 		return photo_count,contains_video
   
 
@@ -158,7 +158,7 @@ class TwitterInterface:
 			
 
 			tweet_id_str = tweet.id_str
-			tweet_object = database.Tweet(tweet_id_str,retweets = retweets,list_of_hashtags= hashtags,time=creation_date,contains_videos = contains_video,num_photos= photo_count,mentioned_ids = mentioned_ids)
+			tweet_object = database.Tweet(tweet_id_str,retweets = retweets,list_of_hashtags= hashtags,time=creation_date,contains_video = contains_video,num_photos= photo_count,mentioned_ids = mentioned_ids)
 			user_tweets.append(tweet_object)
 		return user_tweets
 
