@@ -83,11 +83,7 @@ class TwitterInterface:
 				)
 		return tweets
 	def getMentionedIDs(self,mentions):
-		ids = []
-		if not (mentions is None):
-			for user in mentions:
-				ids.append(user.id)
-		return ids
+		return [user.id for user in mentions] if mentions is not None else []
 
 	def scrapeMedia(self,tweet):
 		contains_video = False
