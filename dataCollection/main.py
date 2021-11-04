@@ -46,6 +46,7 @@ def main():
 			print("adding", key_i)
 			try:
 				r = db2.getUsertp(str(int(key_i)).strip())
+				u = None
 			except:
 				continue
 			if r is not None:
@@ -56,12 +57,14 @@ def main():
 				u = sample.scrapeUserData(str(int(key_i)).strip())
 				if u is None:
 					continue
-				u.engagement.append((value_i, key))
+				u.engagement = [(value_i, key)]
 				db2.insertUser(u)
 				for tweet in u.tweets:
 					print(tweet)
 					tweet.posterID = str(key_i).strip()
 					db2.insertTweet(tweet)
+			print("ENG")
+			print(u.engagement)
 			db2.cursor.commit()
 		n += 1
 	

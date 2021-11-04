@@ -130,7 +130,7 @@ class TwitterInterface:
 			if i > 0:
 				break
 			user = tweet.user
-			User = database.User(user_id,self.scrapeAllTweets(user_id,num_tweets = 50, user_info = user_data),user.created,user.followersCount,user.statusesCount)
+			User = database.User(user_id,self.scrapeAllTweets(user_id,num_tweets = 10, user_info = user_data),user.created,user.followersCount,user.statusesCount)
 		return User
 	def getNumberOfTweetsBetween(username, startDate, endDate):
 		return int(os.popen("time snscrape --jsonl twitter-search 'from:{} since:{} until:{}' | wc -l".format(username, startDate, endDate)).read())
