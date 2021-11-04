@@ -131,8 +131,8 @@ class TwitterInterface:
 			user = tweet.user
 			User = database.User(user_id,self.scrapeAllTweets(user_id,num_tweets = 50, user_info = user_data),user.created,user.followersCount,user.statusesCount)
 		return User
-	def getTweetsBetween(startDate, endDate):
-		return int(os.popen("time snscrape --jsonl twitter-search 'from:barackobama since:{} until:{}' | wc -l".format(startDate, endDate)).read())
+	def getTweetsBetween(username, startDate, endDate):
+		return int(os.popen("time snscrape --jsonl twitter-search 'from:{} since:{} until:{}' | wc -l".format(username, startDate, endDate)).read())
 		
 	def getAllTweets(self,id,num = 50):
 		"""gets all the tweets of a user  
