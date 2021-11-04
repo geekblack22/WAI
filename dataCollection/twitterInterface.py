@@ -1,10 +1,12 @@
 import tweepy
 import numpy as np
 import sys
+import os
 import time
 import database
 from timeit import default_timer as timer
 from collections import Counter
+from itertools import islice
 import requests
 import snscrape.modules.twitter as sntwitter
 
@@ -51,16 +53,12 @@ class TwitterInterface:
 	def scrapeAllTweets(self,user_id,num_tweets=0,user_info = None):
 		tweets = []
 		hashtags = ""
-
-		
 		if user_info is None:
-			user_info = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
+			user_info = enumerate(sntwitter.TwitterUserScraper(str(user_id), isUserId = True).get_items())
 		for i,tweet in user_info:
-			if num_tweets > 0:
-				if i > num_tweets:
-					break
-
-			photo_count,contains_video = self.scrapeMedia(tweet)
+			if num_tweets > 0 and i > num_tweets:
+				break
+			photo_count, contains_video = self.scrapeMedia(tweet)
 			if tweet.hashtags is not None:
 				hashtags = ",".join(tweet.hashtags)
 			tweets.append(
@@ -71,17 +69,14 @@ class TwitterInterface:
 			list_of_hashtags= hashtags,
 			mentioned_ids = self.getMentionedIDs(tweet.mentionedUsers))
 			)
-		profile_info = enumerate(sntwitter.TwitterProfileScraper(user_id, isUserId = True).get_items())
+		profile_info = enumerate(sntwitter.TwitterProfileScraper(str(user_id), isUserId = True).get_items())
 		for i,tweet in profile_info:
-
-			if num_tweets > 0:
-				if i > num_tweets:
-					break
+			if num_tweets > 0 and i > num_tweets:
+				break
 			retweet = tweet.retweetedTweet
 			if not (retweet is None):
 				photo_count,contains_video = self.scrapeMedia(retweet)
 				if not (retweet.hashtags  is None):
-					print(retweet.hashtags)
 					hashtags = ",".join(retweet.hashtags)
 				user = retweet.user
 				tweets.append(
@@ -99,11 +94,11 @@ class TwitterInterface:
 	def scrapeMedia(self,tweet):
 		contains_video = False
 		photo_count = 0
-		if not (tweet.media is None):
-				for medium in tweet.media:
-					if isinstance(medium, sntwitter.Photo):
-						photo_count+=1
-					contains_video = (isinstance(medium, sntwitter.Video) or isinstance(medium, sntwitter.VideoVariant))
+		if tweet.media is not None:
+			for medium in tweet.media:
+				if isinstance(medium, sntwitter.Photo):
+					photo_count+=1
+				contains_video = (isinstance(medium, sntwitter.Video) or isinstance(medium, sntwitter.VideoVariant))
 
 			
 		return photo_count,contains_video
@@ -129,14 +124,17 @@ class TwitterInterface:
 		return users
 	def scrapeUserData(self,user_id):
 		User = None
-		user_data = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
+		user_data = enumerate(sntwitter.TwitterUserScraper(str(user_id), isUserId = True).get_items())
 		for i,tweet in user_data:
 			if i > 0:
 				break
 			user = tweet.user
-			User = database.User(user_id,self.scrapeAllTweets(user_id,user_info= user_data),user.created,user.followersCount,user.statusesCount)
+			User = database.User(user_id,self.scrapeAllTweets(user_id,num_tweets = 50, user_info = user_data),user.created,user.followersCount,user.statusesCount)
 		return User
-	def getAllTweets(self,id):
+	def getTweetsBetween(startDate, endDate):
+		return int(os.popen("time snscrape --jsonl twitter-search 'from:barackobama since:{} until:{}' | wc -l".format(startDate, endDate)).read())
+		
+	def getAllTweets(self,id,num = 50):
 		"""gets all the tweets of a user  
 		Parameters
 		----------
@@ -149,7 +147,7 @@ class TwitterInterface:
 		 """
 		self.rateLim()
 
-		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(1500)
+		tweets = tweepy.Cursor(self.api.user_timeline,include_rts=False,user_id = id).items(num)
 
 		user_tweets = []
 		for tweet in tweets:
@@ -204,10 +202,10 @@ class TwitterInterface:
 				contains_video = True
 		return photo_count,contains_video
 	def mostEngagedUsers(self, user,num_users, percent, n=-1):
-		tweets = self.getAllTweets(user)
+		tweets = self.getAllTweets(user,num=400)
 		if len(tweets) == 0:
 			return {}
-		account_d = np.array([])
+		account_d = np.array([],dtype = 'object')
 		top_users = []
 		for i in range(0,len(tweets)):
 			accounts = []
