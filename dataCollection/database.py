@@ -43,23 +43,40 @@ class Database:
 		return [row[0] for row in itertools.islice(lst,n)]
 
 	def insertUser(self,user):
-		self.cursor.execute("""INSERT INTO [dbo].[Users] ([IDStr],[creationDate,engagement]) VALUES(?,?,?)""",
-		(user.IDstr,user.creationDate,str(user.engagement))
+		self.cursor.execute("""INSERT INTO [dbo].[User] ([IDStr],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets]) VALUES(?,?,?,?,?,?)""",
+		(user.IDstr,user.creationDate,str([i[0] for i in user.engagement])[1:-1],str([i[1] for i in user.engagement])[1:-1],user.follower_count,user.tweet_count)
 		)
 		user.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
 		return user
-	def instertListofUsers(self,users):
-		for i in range(0,len(users)):
-			self.insertUser(users[i])
+	def getUsertp(self, idStr):
+		lst = self.cursor.execute("""SELECT [ID],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets] FROM [dbo].[User] WHERE [IDStr] = ?""",(idStr))
+		usr = None
+		try:
+			usr = next(lst)
+		except:
+			if usr is None:
+				return None
+		return User(idStr, [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), user) for n,user in zip(usr[2].split(","),usr[3].split(","))])
+	def updateUser(self,user):
+		self.cursor.execute("""UPDATE [dbo].[User] SET [IDstr] = ?, [creationDate] = ?, [numberOfFollowers] = ?, [numberOfTweets] = ?, [engagementAmount] = ?, [engagementUsers] = ? WHERE [ID] = ?""",(user.IDStr, user.creationDate, user.follower_count, user.tweet_count, str([i[0] for i in user.engagement])[1:-1], str([i[1] for i in user.engagement])[1:-1], user.ID))
+
 	def insertTweet(self,tweet):
-		self.cursor.execute("""INSERT INTO [dbo].[Tweet] ([IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets]) VALUES(?,?,?,?,?,?,?)""",
-		(tweet.IDstr,tweet.contains_videos,tweet.num_photos,tweet.list_of_hashtags,tweet.time,tweet.posterID,tweet.retweets)
+		print(tweet)
+		self.cursor.execute("""INSERT INTO [dbo].[Tweets] ([IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets]) VALUES(?,?,?,?,?,?,?)""",
+		(tweet.IDstr,tweet.contains_video,tweet.num_photos,tweet.list_of_hashtags,tweet.time,str(tweet.posterID).strip(),tweet.retweets)
 		)
 		tweet.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
 		return tweet
-	def instertListofTweets(self,tweets):
-		for i in range(0,len(tweets)):
-			self.insertTweet(tweets[i])
+	def clear(self):
+		self.cursor.execute("""Delete From [dbo].[User];""")
+		self.cursor.execute("""Delete From [dbo].[Tweets];""")
+		self.db.commit()
+	def updateTweet(self,tweet):
+		self.cursor.execute("""UPDATE [dbo].[Tweets] SET [IDStr] = ?, [containsVideo] = ?, [numberOfPictures] = ?, [listOfHashtags] = ?, [time] = ?, [posterID] = ?, [retweets] = ? WHERE [ID] = ? """,
+		(tweet.IDstr,tweet.contains_video,tweet.num_photos,tweet.list_of_hashtags,tweet.time,str(tweet.posterID).strip(),tweet.retweets,tweet.ID)
+		)
+		tweet.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
+		return tweet
 def dtto(t):
 	return "'" + str(t).split(' ')[0] + "'"
 class Tweet:
@@ -89,10 +106,11 @@ class Tweet:
 def retweet_compare(tweet1, tweet2):
 	return tweet1.retweets - tweet2.retweets
 class User:
-	def __init__(self, IDstr, tweets,creationDate, follower_count,tweet_count,ID=0):	
+	def __init__(self, IDstr, tweets,creationDate, follower_count,tweet_count,ID=0,engagement=[]):	
 		self.ID = ID
 		self.IDstr = IDstr	   #string
 		self.tweets = tweets
 		self.creationDate = creationDate	#dateTime
 		self.follower_count = follower_count
 		self.tweet_count = tweet_count
+		self.engagement = engagement
