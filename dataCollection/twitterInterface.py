@@ -4,6 +4,7 @@ import sys
 import os
 import time
 import database
+import datetime
 from timeit import default_timer as timer
 from collections import Counter
 from itertools import islice
@@ -131,9 +132,15 @@ class TwitterInterface:
 			user = tweet.user
 			User = database.User(user_id,self.scrapeAllTweets(user_id,num_tweets = 50, user_info = user_data),user.created,user.followersCount,user.statusesCount)
 		return User
-	def getTweetsBetween(username, startDate, endDate):
+	def getNumberOfTweetsBetween(username, startDate, endDate):
 		return int(os.popen("time snscrape --jsonl twitter-search 'from:{} since:{} until:{}' | wc -l".format(username, startDate, endDate)).read())
 		
+
+	def getTweetDatesBetween(username, startDate, endDate):
+		lines = os.popen("time snscrape --jsonl twitter-search 'from:{} since:{} until:{}' | awk '{print }' | cut -d T -f1 | cut -c 4-".format(username, startDate, endDate)).readlines()
+		return [datetime.datetime.strptime(line, "%y-%d-%m\n").date() for line in lines]
+
+
 	def getAllTweets(self,id,num = 50):
 		"""gets all the tweets of a user  
 		Parameters
