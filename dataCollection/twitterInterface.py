@@ -49,6 +49,20 @@ class TwitterInterface:
 			results.extend(self.retrieveUsers([account_ids[i]]))
 		return results
 	def scrapeAllTweets(self,user_id,num_tweets=0,user_info = None):
+		"""scapes all the tweets of a user  
+		Parameters
+		----------
+		user_id: str 
+			(required)User ID assigned by Twitter
+		num_tweets: int
+			number of tweets to scrapes
+		user_info: TwitterUserScraper
+			contains all the info scraped from a user
+		Returns
+		-------
+		list
+			a list of twitter objects
+		 """
 		tweets = []
 		hashtags = ""
 
@@ -94,9 +108,32 @@ class TwitterInterface:
 				)
 		return tweets
 	def getMentionedIDs(self,mentions):
+		"""Gets the user IDs of mentioned users
+		   Parameters
+		   ----------
+		   mentions: mentionedUsers
+		   		A list of mentioned user objects
+		   Returns
+		   -------
+		   list
+		   		A list of user IDs
+		"""
 		return [user.id for user in mentions] if mentions is not None else []
 
 	def scrapeMedia(self,tweet):
+		"""determines the media in a tweet 
+		Parameters
+		----------
+		tweet: Tweet object
+			Tweet object in the library snscrape 	
+		
+		Returns
+		-------
+		int
+			the number of photos in the tweet
+		boolean
+			if there are any videos in the tweet
+		 """
 		contains_video = False
 		photo_count = 0
 		if not (tweet.media is None):
@@ -127,14 +164,27 @@ class TwitterInterface:
 			tweets =  self.getAllTweets(list[i])
 			users[i] = database.User(list[i],tweets,response.created_at)
 		return users
-	def scrapeUserData(self,user_id):
+	def scrapeUserData(self,user_id,get_tweets=True):
+		"""Gets all the information pertaining to a use
+		----------
+		user_id: str
+			account ID	
+		Returns
+		-------
+		list
+			a user object
+		 """
 		User = None
 		user_data = enumerate(sntwitter.TwitterUserScraper(user_id, isUserId = True).get_items())
 		for i,tweet in user_data:
 			if i > 0:
 				break
 			user = tweet.user
-			User = database.User(user_id,self.scrapeAllTweets(user_id,user_info= user_data),user.created,user.followersCount,user.statusesCount)
+			tweets = []
+			if get_tweets:
+				tweets = self.scrapeAllTweets(user_id,user_info= user_data,num_tweets=200)
+			
+			User = database.User(user_id,tweets,user.created,user.followersCount,user.statusesCount)
 		return User
 	def getAllTweets(self,id):
 		"""gets all the tweets of a user  
@@ -204,6 +254,24 @@ class TwitterInterface:
 				contains_video = True
 		return photo_count,contains_video
 	def mostEngagedUsers(self, user,num_users, percent, n=-1):
+		"""determines the media in a tweet 
+		Parameters
+		----------
+		user: str
+			User ID
+		num_users: int
+			Number of users to return
+		percent: float
+			Top percentage of users ID's to return based on number of retweets
+		n: int
+			Number of seed users done
+		Returns
+		-------
+		list
+			User IDs of top n percent of users based on retweets
+
+		
+		 """
 		tweets = self.getAllTweets(user)
 		if len(tweets) == 0:
 			return {}
