@@ -1,4 +1,5 @@
 #!/usr/bin/sh
 
 ./pp.sh
-python3.9 main.py
+python3.9 main.py &
+echo $! > datacollection.pid

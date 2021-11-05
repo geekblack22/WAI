@@ -1,12 +1,13 @@
 from random import sample
 import database
-import datetime
+from datetime import datetime, timedelta
 import algos
 import sys
 import twitterInterface
 from dotenv import load_dotenv
 import os 
-
+import time
+import pickle
 
 def main():
 	load_dotenv()
@@ -21,50 +22,61 @@ def main():
 	database_2 = os.getenv('database_2')
 	uid_2 = os.getenv('uid_2')
 	pwd_2 = os.getenv('pwd_2')
-
-	print(pwd_1)
-
-
-	# db = database.Database(server_1,database_1,uid_1,pwd_1)
-	# tweets = db.getAllTweetsBetween(datetime.datetime(2020,11,1,0,0,0),datetime.datetime(2020,11,2,0,0,0))
-	# median_tweets = algos.middle_n_entries(tweets, 10, database.retweet_compare, .85, .1)
-	# new_db = database.Database(server_2,database_2,uid_2,pwd_2)
-	# with open("tweetSample.txt",'w') as f:
-	# 	[print(tweet.IDstr, file=f) for tweet in median_tweets]
-	# with open("tweetSample.txt",'r') as f:
-	# 		hamilton_tweets =  f.readlines()
+	bearer_token = os.getenv('test_token')
 	
-	# for i in range(0,len(hamilton_tweets)):
 
-	# 	hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
+	db = database.Database(server_1,database_1,uid_1,pwd_1)
+	db2 = database.Database(server_2,database_2,uid_2,pwd_2)
+	db2.clear()
+	date = datetime.now()
+	seeds = {}
+	for i in range(15):
+		for user in db.highestPercentGrowth(20,date):
+			seeds[user] = 1
+		date = date - timedelta(days = 30)
+	
+	sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
+	
 
-	# sample = twitterInterface.TwitterInterface(consumer_key,consumer_secret)
-	# retweeters = []
-	# # for tweet in median_tweets:
-	# # 	retweeters.extend(sample.getRetweeters(tweet.IDstr))
+	print(len(seeds))
+	n = 0
+	for key,value in seeds.items():
+		engaged_users, freqs = sample.mostEngagedUsers(key,300,.05,n)
+		for key_i,value_i in zip(engaged_users,freqs):
+			print("adding", key_i)
+			try:
+				r = db2.getUsertp(str(int(key_i)).strip())
+			except:
+				continue
+			if r is not None:
+				u = r
+				u.engagement.append((value_i, key))
+				db2.updateUser(u)
+			else:
+				u = sample.scrapeUserData(str(int(key_i)).strip())
+				if u is None:
+					continue
+				u.engagement.append((value_i, key))
+				db2.insertUser(u)
+				for tweet in u.tweets:
+					print(tweet)
+					tweet.posterID = str(key_i).strip()
+					db2.insertTweet(tweet)
+			db2.cursor.commit()
+		n += 1
 	
-	# # user_data = sample.getUsersData(retweeters) 
-	# # print(user_data)
-	# user1 = database.User("198765434","Human007",[],"2018-12-19 09:26:03.478039")
-	# test_tweet = database.Tweet(5,"196765934","Human007")
-	# # user_tweets = user1.tweets
-	# # print(user_tweets[1].list_of_hashtags)
-	# # print(user_tweets[1].IDstr)
-	# # print(user_tweets[1].screenName)
-	# # print(user_tweets[1].time)
-	# new_db.insertUser(user1)
-	# new_db.insertTweet(test_tweet)
-	
-	# # tweets = user1.tweets
-	
-	# # print(tweets[1].time)
-	# # print(tweets[1].screenName)
-	# #with open("tweetSample_pr.txt",'r') as f:
-	# 	#hamilton_tweets = f.readlines()
-	# #for i in range(0,20):
-	# 	#hamilton_tweets[i] = hamilton_tweets[i].split(" ", 1)[0]
-	# #sample = SampleTwitter.SampleTwitter(consumer_key,consumer_secret,hamilton_tweets)
-	# #print(sample.getUserData(open("retweeterIDs.txt",'r').readlines()))
+
+	# table = open('table.pickle', 'wb')
+	# pickle.dump(superTable,table)
+	#tweets = sample.scrapeAllTweets('2318647908',all_tweets=False,num_tweets=1000)
+	user = sample.scrapeUserData('2318647908')
+	tweets = user.tweets
+	print(user.creationDate)
+	print(user.follower_count)
+	print(user.tweet_count)
+	for tweet in tweets:
+	 	print(tweet)
+
 
 if __name__ == "__main__":
 	main()
