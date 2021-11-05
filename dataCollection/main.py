@@ -41,6 +41,7 @@ def main():
 	n = 0
 	for key,value in seeds.items():
 		if(db2.seenSeed(str(key).strip())):
+			n += 1
 			print("seen")
 			continue
 		engaged_users, freqs = sample.mostEngagedUsers(key,300,.05,n)

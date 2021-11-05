@@ -53,13 +53,21 @@ class Database:
 
 	def insertUser(self,user):
 		self.cursor.execute("""INSERT INTO [dbo].[User] ([IDStr],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets],[fingerprint]) VALUES(?,?,?,?,?,?,?)""",
-		(user.IDstr,user.creationDate,str([i[0] for i in user.engagement])[1:-1],str([i[1] for i in user.engagement])[1:-1],user.follower_count,user.tweet_count,str(user.fingerprint)[1:-1])
+		(user.IDstr,user.creationDate,str([i[0] for i in user.engagement])[1:-1],str([int(i[1]) for i in user.engagement])[1:-1],user.follower_count,user.tweet_count,str(user.fingerprint)[1:-1])
 		)
 		user.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
 		return user
 	def getAllUsers(self):
-		lst = self.cursor.execute("""SELECT [ID],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets],[fingerprint] FROM [dbo].[User] WHERE [IDStr] = ?""",(idStr))
-		return [User(idStr, [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), user) for n,user in zip(usr[2].split(","),usr[3].split(","))],fingerprint = [float(n) for n in usr[6].split(",")]) for usr in lst]
+		lst = self.cursor.execute("""SELECT [ID],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets],[fingerprint],[IDStr] FROM [dbo].[User]""")
+		return [User(usr[7], [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), int(user)) for n,user in zip(usr[2].split(","),usr[3].split(","))],fingerprint = [float(n) for n in usr[6].split(",")]) for usr in lst]
+	
+	def clean(self):
+		users = self.getAllUsers()
+		for user in users:
+			for i,t in enumerate(user.engagement):
+				user.engagement[i] = (t[0], int(''.join(c for c in t[1] if c.isdigit())))
+			self.updateUser(user)
+
 	def getUsertp(self, idStr):
 		lst = self.cursor.execute("""SELECT [ID],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets],[fingerprint] FROM [dbo].[User] WHERE [IDStr] = ?""",(idStr))
 		usr = None
@@ -68,7 +76,7 @@ class Database:
 		except:
 			if usr is None:
 				return None
-		return User(idStr, [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), user) for n,user in zip(usr[2].split(","),usr[3].split(","))],fingerprint = [float(n) for n in usr[6].split(",")])
+		return User(idStr, [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), int(user)) for n,user in zip(usr[2].split(","),usr[3].split(","))],fingerprint = [float(n) for n in usr[6].split(",")])
 	def updateUser(self,user):
 		self.cursor.execute("""UPDATE [dbo].[User] SET [IDstr] = ?, [creationDate] = ?, [numberOfFollowers] = ?, [numberOfTweets] = ?, [engagementAmount] = ?, [engagementUsers] = ?, [fingerprint] = ? WHERE [ID] = ?""",(user.IDstr, user.creationDate, user.follower_count, user.tweet_count, str([i[0] for i in user.engagement])[1:-1], str([i[1] for i in user.engagement])[1:-1],str(user.fingerprint)[1:-1], user.ID))
 
