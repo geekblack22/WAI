@@ -39,6 +39,7 @@ def cluster(loe, threshold_number, threshold_time, compare, distance):
 		if count >= threshold_number:
 			ret.append(loe_s[index:temp_index])
 			index = temp_index
+	return ret
 
 def highest_retweets_each_user(lot):
 	highestTweets = {}

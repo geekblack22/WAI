@@ -5,6 +5,7 @@ import os
 import time
 import database
 import datetime
+from dateutil.relativedelta import relativedelta
 from timeit import default_timer as timer
 from collections import Counter
 from itertools import islice
@@ -179,16 +180,32 @@ class TwitterInterface:
 			tweets = []
 			if get_tweets:
 				tweets = self.scrapeAllTweets(user_id,user_info= user_data,num_tweets=50)
-			User = database.User(user_id,tweets,user.created,user.followersCount,user.statusesCount)
+
+			#a_month = relativedelta(months=1)
+			#a_year  = relativedelta(years = 1)
+			#i = 0
+			buckets = [0 for i in range(48)]
+			#back = datetime.date.today() - a_year
+			#back_tmp = back
+			#for date in self.getTweetDatesBetween(user.username, database.dtto(back), database.dtto(datetime.datetime.now())):
+				#buckets[i] += 1
+				#if date >= back_tmp:
+					#back += a_month
+					#if i%2 == 0:
+						#back_tmp = back + datetime.timedelta(days = 15)
+					#i += 1
+			#buckets = [n/user.statusesCount for n in buckets]
+			User = database.User(user_id,tweets,user.created,user.followersCount,user.statusesCount,fingerprint = buckets)
 		return User
 
-	def getNumberOfTweetsBetween(username, startDate, endDate):
-		return int(os.popen("time snscrape --jsonl twitter-search 'from:{} since:{} until:{}' | wc -l".format(username, startDate, endDate)).read())
+	def getNumberOfTweetsBetween(self, username, startDate, endDate):
+		return int(os.popen("snscrape --jsonl twitter-search 'from:{} since:{} until:{}' | wc -l".format(username, startDate, endDate)).read())
 		
 
-	def getTweetDatesBetween(username, startDate, endDate):
-		lines = os.popen("time snscrape --jsonl twitter-search 'from:{} since:{} until:{}' | awk '{print }' | cut -d T -f1 | cut -c 4-".format(username, startDate, endDate)).readlines()
-		return [datetime.datetime.strptime(line, "%y-%d-%m\n").date() for line in lines]
+	def getTweetDatesBetween(self, username, startDate, endDate):
+		print(f"snscrape --jsonl twitter-search 'from:{username} since:{startDate} until:{endDate}' | awk '{{print $6}}' | cut -d T -f1 | cut -c 4-")
+		lines = os.popen(f"snscrape --jsonl twitter-search 'from:{username} since:{startDate} until:{endDate}' | awk '{{print $6}}' | cut -d T -f1 | cut -c 4-").readlines()
+		return [datetime.datetime.strptime(line, "%y-%m-%d\n").date() for line in lines][::-1]
 
 
 	def getAllTweets(self,id,num = 50):

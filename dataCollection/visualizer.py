@@ -24,9 +24,9 @@ bearer_token = os.getenv('test_token')
 
 tw = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
 for retweeter in retweeters:
-    users.append(tw.scrapeUserData(str(retweeter), get_tweets= False))
+	users.append(tw.scrapeUserData(str(retweeter), get_tweets= False))
 for user in users:
-    dates.append(user.creationDate)
+	dates.append(user.creationDate)
 print(len(dates))
 plt.scatter(dates,y, ls='dotted', c='red', lw=2)
 plt.gcf().autofmt_xdate()

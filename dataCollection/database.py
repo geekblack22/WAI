@@ -37,28 +37,40 @@ class Database:
 		tweets = [Tweet(row[0],row[1],row[2],row[3] if row[3] is not None else 0, row[4]) for row in lst]
 		return tweets
 
+	def seenSeed(self, idstr):
+		print(idstr)
+		lst = self.cursor.execute("""SELECT [ID] FROM [dbo].[User] WHERE [engagementUsers] LIKE '{}'""".format("%" + idstr + "%"))
+		try:
+			usr = next(lst)
+			return True
+		except:
+			return False
+
 	def highestPercentGrowth(self, n, date):
 		date = dtto(date)
 		lst = self.cursor.execute("SELECT [idStr] ,Min([followerCount]) as minFollowers, Max(followerCount) as maxFollowers, 100*(Max(followerCount)-Min([followerCount]))/(1+Max(followerCount)) percentChange FROM [dbo].[V_Handles_History] WHERE [snapshotDate] >= DATEADD(day, -30, {}) AND [snapshotDate] <= {} AND country in ('ch','ru','ir') group by idStr order by percentChange desc".format(date,date))
 		return [row[0] for row in itertools.islice(lst,n)]
 
 	def insertUser(self,user):
-		self.cursor.execute("""INSERT INTO [dbo].[User] ([IDStr],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets]) VALUES(?,?,?,?,?,?)""",
-		(user.IDstr,user.creationDate,str([i[0] for i in user.engagement])[1:-1],str([i[1] for i in user.engagement])[1:-1],user.follower_count,user.tweet_count)
+		self.cursor.execute("""INSERT INTO [dbo].[User] ([IDStr],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets],[fingerprint]) VALUES(?,?,?,?,?,?,?)""",
+		(user.IDstr,user.creationDate,str([i[0] for i in user.engagement])[1:-1],str([i[1] for i in user.engagement])[1:-1],user.follower_count,user.tweet_count,str(user.fingerprint)[1:-1])
 		)
 		user.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
 		return user
+	def getAllUsers(self):
+		lst = self.cursor.execute("""SELECT [ID],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets],[fingerprint] FROM [dbo].[User] WHERE [IDStr] = ?""",(idStr))
+		return [User(idStr, [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), user) for n,user in zip(usr[2].split(","),usr[3].split(","))],fingerprint = [float(n) for n in usr[6].split(",")]) for usr in lst]
 	def getUsertp(self, idStr):
-		lst = self.cursor.execute("""SELECT [ID],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets] FROM [dbo].[User] WHERE [IDStr] = ?""",(idStr))
+		lst = self.cursor.execute("""SELECT [ID],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets],[fingerprint] FROM [dbo].[User] WHERE [IDStr] = ?""",(idStr))
 		usr = None
 		try:
 			usr = next(lst)
 		except:
 			if usr is None:
 				return None
-		return User(idStr, [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), user) for n,user in zip(usr[2].split(","),usr[3].split(","))])
+		return User(idStr, [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), user) for n,user in zip(usr[2].split(","),usr[3].split(","))],fingerprint = [float(n) for n in usr[6].split(",")])
 	def updateUser(self,user):
-		self.cursor.execute("""UPDATE [dbo].[User] SET [IDstr] = ?, [creationDate] = ?, [numberOfFollowers] = ?, [numberOfTweets] = ?, [engagementAmount] = ?, [engagementUsers] = ? WHERE [ID] = ?""",(user.IDStr, user.creationDate, user.follower_count, user.tweet_count, str([i[0] for i in user.engagement])[1:-1], str([i[1] for i in user.engagement])[1:-1], user.ID))
+		self.cursor.execute("""UPDATE [dbo].[User] SET [IDstr] = ?, [creationDate] = ?, [numberOfFollowers] = ?, [numberOfTweets] = ?, [engagementAmount] = ?, [engagementUsers] = ?, [fingerprint] = ? WHERE [ID] = ?""",(user.IDstr, user.creationDate, user.follower_count, user.tweet_count, str([i[0] for i in user.engagement])[1:-1], str([i[1] for i in user.engagement])[1:-1],str(user.fingerprint)[1:-1], user.ID))
 
 	def insertTweet(self,tweet):
 		print(tweet)
@@ -106,7 +118,7 @@ class Tweet:
 def retweet_compare(tweet1, tweet2):
 	return tweet1.retweets - tweet2.retweets
 class User:
-	def __init__(self, IDstr, tweets,creationDate, follower_count,tweet_count,ID=0,engagement=[]):	
+	def __init__(self, IDstr, tweets,creationDate, follower_count,tweet_count,ID=0,engagement=[],fingerprint=[]):	
 		self.ID = ID
 		self.IDstr = IDstr	   #string
 		self.tweets = tweets
@@ -114,3 +126,4 @@ class User:
 		self.follower_count = follower_count
 		self.tweet_count = tweet_count
 		self.engagement = engagement
+		self.fingerprint = fingerprint
