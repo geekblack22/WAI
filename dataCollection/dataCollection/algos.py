@@ -39,11 +39,10 @@ def cluster(loe, threshold_number, threshold_time, compare, distance):
 		if count >= threshold_number:
 			ret.append(loe_s[index:temp_index])
 			index = temp_index
-<<<<<<< HEAD:dataCollection/dataCollection/algos.py
+
 		else:
 			index += 1
-=======
->>>>>>> 05571c38ba730b3c84ea04b81e5bf6e56cd1bd00:dataCollection/algos.py
+
 	return ret
 
 def highest_retweets_each_user(lot):

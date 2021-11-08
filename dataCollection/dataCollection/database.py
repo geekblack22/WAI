@@ -77,7 +77,7 @@ class Database:
 			if usr is None:
 				return None
 		return User(idStr, [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), int(user)) for n,user in zip(usr[2].split(","),usr[3].split(","))],fingerprint = [float(n) for n in usr[6].split(",")])
-<<<<<<< HEAD:dataCollection/dataCollection/database.py
+
 	def getUsername(self,user_id):
 			self.cursor.execute("""SELECT [screenName] FROM [dbo].[Handle] WHERE [IDStr] = ?""",(user_id))
 			result =  self.cursor.fetchall()
@@ -85,8 +85,7 @@ class Database:
 			user_name = user_name.translate(str.maketrans('','', "(),'"))
 			
 			return user_name
-=======
->>>>>>> 05571c38ba730b3c84ea04b81e5bf6e56cd1bd00:dataCollection/database.py
+
 	def updateUser(self,user):
 		self.cursor.execute("""UPDATE [dbo].[User] SET [IDstr] = ?, [creationDate] = ?, [numberOfFollowers] = ?, [numberOfTweets] = ?, [engagementAmount] = ?, [engagementUsers] = ?, [fingerprint] = ? WHERE [ID] = ?""",(user.IDstr, user.creationDate, user.follower_count, user.tweet_count, str([i[0] for i in user.engagement])[1:-1], str([i[1] for i in user.engagement])[1:-1],str(user.fingerprint)[1:-1], user.ID))
 
