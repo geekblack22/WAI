@@ -197,6 +197,7 @@ class TwitterInterface:
 			#buckets = [n/user.statusesCount for n in buckets]
 			User = database.User(user_id,tweets,user.created,user.followersCount,user.statusesCount,fingerprint = buckets)
 		return User
+<<<<<<< HEAD:dataCollection/dataCollection/twitterInterface.py
 	def scrapeUsername(self,id):
 		user_data = enumerate(sntwitter.TwitterUserScraper(str(id), isUserId = True).get_items())
 		for i,tweet in user_data:
@@ -204,6 +205,9 @@ class TwitterInterface:
 				break
 			user = tweet.user
 		return user.username
+=======
+
+>>>>>>> 05571c38ba730b3c84ea04b81e5bf6e56cd1bd00:dataCollection/twitterInterface.py
 	def getNumberOfTweetsBetween(self, username, startDate, endDate):
 		return int(os.popen("snscrape --jsonl twitter-search 'from:{} since:{} until:{}' | wc -l".format(username, startDate, endDate)).read())
 		
