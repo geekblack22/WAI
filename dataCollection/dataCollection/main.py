@@ -27,7 +27,6 @@ def main():
 
 	db = database.Database(server_1,database_1,uid_1,pwd_1)
 	db2 = database.Database(server_2,database_2,uid_2,pwd_2)
-	db2.clear()
 	date = datetime.now()
 	seeds = {}
 	for i in range(15):
@@ -41,11 +40,16 @@ def main():
 	print(len(seeds))
 	n = 0
 	for key,value in seeds.items():
+		if(db2.seenSeed(str(key).strip())):
+			n += 1
+			print("seen")
+			continue
 		engaged_users, freqs = sample.mostEngagedUsers(key,300,.05,n)
 		for key_i,value_i in zip(engaged_users,freqs):
 			print("adding", key_i)
 			try:
 				r = db2.getUsertp(str(int(key_i)).strip())
+				u = None
 			except:
 				continue
 			if r is not None:
@@ -56,12 +60,14 @@ def main():
 				u = sample.scrapeUserData(str(int(key_i)).strip())
 				if u is None:
 					continue
-				u.engagement.append((value_i, key))
+				u.engagement = [(value_i, key)]
 				db2.insertUser(u)
 				for tweet in u.tweets:
 					print(tweet)
 					tweet.posterID = str(key_i).strip()
 					db2.insertTweet(tweet)
+			print("ENG")
+			print(u.engagement)
 			db2.cursor.commit()
 		n += 1
 	
