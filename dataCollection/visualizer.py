@@ -105,14 +105,14 @@ def plotSegmentedEngagementMap(engagement_dict,y,cluster_users,all_dates,x_label
         plt.scatter(engagers,y_line,s = size,color = "red", alpha = overlapping)
         plt.gcf().autofmt_xdate()
 def plotFingerPrint(fingerPrint):
-    plt.figure()
-    count, bins_count = np.histogram(fingerPrint[0:24], bins=24)
+    # plt.figure()
+    count, bins_count = np.histogram(fingerPrint[0:23], bins=24)
     pdf = count / sum(count)
     cdf = np.cumsum(pdf)
-    print(len(cdf))
-    x = np.arange(0,24)
+    print(len(fingerPrint))
+    x = np.arange(1,24)
+    fingerPrint = [element * 2 for element in fingerPrint[0:23]]
     plt.plot(x,cdf)
-
 # def getNumFollowers(user):
 #     return user.follower_count
 # def getNum(user):
@@ -237,8 +237,12 @@ texts = []
 # ax.axes.yaxis.set_visible(False)
 # plt.scatter(all_dates,y, marker='o', c='black', lw=.25)
 # plotEngagemetMap(full_map,y,cluster_users,all_dates,large_data= True)
-plotFingerPrint(users[5].fingerprint)
-
+fig = plt.figure()
+ax = plt.gca()
+for i in range(10):
+    plotFingerPrint(users[i].fingerprint)
+# vals = ax.get_yticks()
+# ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
 # plotEngagemetMap(full_user_map,y,users,all_user_dates,segment=True)
 
 
