@@ -1,5 +1,7 @@
 import functools
 import random
+from sklearn.cluster import KMeans
+import numpy as np
 '''
 loe: list of entries (listof E)
 n: number of entries to return
@@ -44,6 +46,15 @@ def cluster(loe, threshold_number, threshold_time, compare, distance):
 			index += 1
 
 	return ret
+
+def fingerprintCluster(lou, clusters):
+	X = np.array([np.array(user.getFingerprint()) for user in lou])
+	kmeans = KMeans(n_clusters=clusters, random_state=0).fit(X)
+	ret = [0]*clusters
+	for i in range(clusters):
+		ret[i] = [user for n,user in enumerate(lou) if kmeans.labels_[n] == i]
+	return ret
+
 
 def highest_retweets_each_user(lot):
 	highestTweets = {}
