@@ -144,3 +144,6 @@ class User:
 		self.tweet_count = tweet_count
 		self.engagement = engagement
 		self.fingerprint = fingerprint
+	def getFingerprint(self):
+        thisyear = sum(self.fingerprint) * self.tweet_count
+        return [(self.tweet_count / thisyear) * bucket for bucket in self.fingerprint]
