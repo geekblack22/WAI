@@ -64,9 +64,7 @@ class Database:
 	def clean(self):
 		users = self.getAllUsers()
 		for user in users:
-			for i,t in enumerate(user.engagement):
-				user.engagement[i] = (t[0], int(''.join(c for c in t[1] if c.isdigit())))
-			self.updateUser(user)
+			print(sum(user.getFingerprint()))
 
 	def getUsertp(self, idStr):
 		lst = self.cursor.execute("""SELECT [ID],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets],[fingerprint] FROM [dbo].[User] WHERE [IDStr] = ?""",(idStr))
@@ -144,3 +142,8 @@ class User:
 		self.tweet_count = tweet_count
 		self.engagement = engagement
 		self.fingerprint = fingerprint
+	def getFingerprint(self):
+		thisyear = sum(self.fingerprint)
+		if thisyear == 0.0:	
+			return self.fingerprint
+		return [(1 / thisyear) * bucket for bucket in self.fingerprint][0:25]
