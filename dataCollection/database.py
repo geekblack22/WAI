@@ -64,7 +64,7 @@ class Database:
 	def clean(self):
 		users = self.getAllUsers()
 		for user in users:
-			print(sum(user.getFingerprint()))
+			print(user.getFingerprint())
 
 	def getUsertp(self, idStr):
 		lst = self.cursor.execute("""SELECT [ID],[creationDate],[engagementAmount],[engagementUsers],[numberOfFollowers],[numberOfTweets],[fingerprint] FROM [dbo].[User] WHERE [IDStr] = ?""",(idStr))
@@ -145,5 +145,5 @@ class User:
 	def getFingerprint(self):
 		thisyear = sum(self.fingerprint)
 		if thisyear == 0.0:	
-			return self.fingerprint
+			return self.fingerprint[0:25]
 		return [(1 / thisyear) * bucket for bucket in self.fingerprint][0:25]
