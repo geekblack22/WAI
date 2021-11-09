@@ -1,2 +1,0 @@
-# WAI
-WPI Atlas IQP

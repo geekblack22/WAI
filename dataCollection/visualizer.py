@@ -49,7 +49,7 @@ def dist(account1,account2):
 
 clusters = algos.cluster(users,15,1209600,compare,dist)
 cluster_dates = [[user.creationDate for user in cluster] for cluster in clusters]
-
+all_user_dates = [user.creationDate for user in users]
 custer_engagement =  [[user.engagement for user in cluster] for cluster in clusters]
 
 
@@ -67,20 +67,23 @@ def engagementMap(users):
 cluster_maps = [engagementMap(cluster) for cluster in clusters]
 cluster_users = [item for sublist in clusters for item in sublist]
 full_map = engagementMap(cluster_users)
+full_user_map = engagementMap(users)
 
-def plotEngagemetMap(engagement_dict,y,all_dates,large_data = False):
+def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,large_data = False,segment = False):
     mid_ys = []
     mid_dates = []
     
     NUM_COLORS = len(engagement_dict)
     cm = plt.get_cmap('jet')
     rcParams['axes.prop_cycle'] = cycler(color=cm(np.linspace(0, 1, NUM_COLORS)))
-    scale = 100
+    scale = 400
     if large_data:
-        scale = 2
+        scale = 60
     
+    
+    i = 0
     for key,engagers in engagement_dict.items():
-        
+        i+=1
         plt.rcParams["figure.autolayout"] = True
         dates = [date.strftime('%m/%d/%Y') for date in all_dates]
         res = [dates.index(i.strftime('%m/%d/%Y')) for i in engagers]
@@ -88,16 +91,28 @@ def plotEngagemetMap(engagement_dict,y,all_dates,large_data = False):
         seed_user = db.getUsername(str(key))
         overlapping = .75
         max_date = max(engagers)
+       
         min_date = min(engagers)
         mid_date = min_date + (max_date - min_date)/2
         max_y = y_line[engagers.index(max_date)]
         min_y = y_line[engagers.index(min_date)]
         mid_y = min_y + (max_y - min_y)/2
         distance = (max_date - min_date)
-        size = max_y - min_y
-        print(size)
-        # plt.plot(engagers,y_line, alpha = overlapping)
+        engagement = [[engagement[0] for engagement in user.engagement] for user in cluster_users]
+        engagement =  [item for sublist in engagement for item in sublist]
+        size = [engagement[ind] for ind in res]
+       
+        max_size = max(size)
+     
+        print(max_size)
+        print("size: " + str(size))
+        size = [(s/float(max_size))*scale for s in size]
+        print("resize: " + str(size))
+      
+
         
+        # plt.plot(engagers,y_line, alpha = overlapping)
+    
         # lines = plt.gca().get_lines()
         # l1=lines[-1]
         # x_data = l1.get_xdata()
@@ -105,48 +120,66 @@ def plotEngagemetMap(engagement_dict,y,all_dates,large_data = False):
         # y_label = y_data[-1]
         # x_label = x_data[-1]
         
-        plt.plot(engagers,y_line,color = "green")
-        plt.scatter(engagers,y_line,s = scale * len(engagers), alpha = overlapping,label = seed_user)
-        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))      
-        ax.axes.yaxis.set_visible(False)
+        if segment:
+            
+            fig = plt.figure()  
+            fig.suptitle(str(seed_user)+" Engagement Map", fontsize=20) 
+            ax = plt.gca()
+            ax.set_xlabel("Creation Dates", fontsize=10)
+            ax.set_ylabel("Tweet Count", fontsize=10)
+            # plt.scatter(engagers,y_line,color = "black")
+            plt.scatter(engagers,y_line,s = size,color = "red", alpha = overlapping)
+            plt.gcf().autofmt_xdate()
+            if i == 20:
+                break
+        else:
+
+            plt.scatter(engagers,y_line,s = size, alpha = overlapping)
+            plt.plot(engagers,y_line,label = seed_user)
+            plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))   
+            plt.gcf().autofmt_xdate()   
+        # ax.axes.yaxis.set_visible(False)
 
 
 # print(custer_engagement)
 all_dates = []
 
-for i in range (0,len(cluster_dates)):
-    x_poses = []
-    y_poses = []
-    texts = []
-    fig = plt.figure()
-    ax = plt.gca()
-    fig.suptitle("Cluster "+str(i)+" Engagement Map", fontsize=20)
-    all_dates.extend(cluster_dates[i])
-    y = np.random.uniform(low = 0,high = 200,size=len(cluster_dates[i]))
-    plotEngagemetMap(cluster_maps[i],y,cluster_dates[i])
-    ax.set_yscale('log')
-    plt.scatter(cluster_dates[i],y, marker='o', c='black', lw=.5)
+# for i in range (0,len(cluster_dates)):
+#     x_poses = []
+#     y_poses = []
+#     texts = []
+#     fig = plt.figure()
+#     ax = plt.gca()
+#     fig.suptitle("Cluster "+str(i)+" Engagement Map", fontsize=20)
+#     all_dates.extend(cluster_dates[i])
+#     y = [user.tweet_count for user in clusters[i]]
+#     plotEngagemetMap(cluster_maps[i],y,clusters[i],cluster_dates[i])
+#     # ax.set_yscale('log')
+#     ax.set_xlabel("Creation Dates", fontsize=10)
+#     ax.set_ylabel("Tweet Count", fontsize=10)
+#     plt.scatter(cluster_dates[i],y, marker='o', c='black', lw=.25)
     
-    plt.gcf().autofmt_xdate()
-    ax.axes.yaxis.set_visible(False)
-    fig.savefig("Cluster"+str(i)+"_Engagement Map.jpeg")
-    for i in range(len(texts)):
-        plt.annotate(texts[i],(x_poses[i],y_poses[i]), rotation = 90, textcoords="offset points", 
-                xytext=(0,10),
-                ha='center')
-        print(texts[i] + " X: "+ str(x_poses[i]) + " Y: "+ str(y_poses[i]))
-fig = plt.figure()
-ax = plt.gca()
-fig.suptitle("Inter-Cluster Engagement Map", fontsize=20)
-y = np.random.normal(size=len(all_dates))
+#     plt.gcf().autofmt_xdate()
+#     # ax.axes.yaxis.set_visible(False)
+#     fig.savefig("Cluster"+str(i)+"_Engagement Map.jpeg")
+   
+# fig = plt.figure()
+# ax = plt.gca()
+# fig.suptitle("Inter-Cluster Engagement Map", fontsize=20)
+# ax.set_xlabel("Creation Dates", fontsize=10)
+# ax.set_ylabel("Tweet Count", fontsize=10)
+
+y = [user.tweet_count for user in users]
 
 x_poses = []
 y_poses = []
 texts = []
 
-ax.axes.yaxis.set_visible(False)
-plt.scatter(all_dates,y, marker='o', c='black', lw=.5)
-plotEngagemetMap(full_map,y,all_dates,large_data= True)
+# ax.axes.yaxis.set_visible(False)
+# plt.scatter(all_dates,y, marker='o', c='black', lw=.25)
+# plotEngagemetMap(full_map,y,cluster_users,all_dates,large_data= True)
+plotEngagemetMap(full_user_map,y,users,all_user_dates,segment=True)
+
 
 # for i in range(len(texts)):
 #     plt.annotate(texts[i],(x_poses[i],y_poses[i]), rotation = 90, textcoords="offset points", 
@@ -155,8 +188,8 @@ plotEngagemetMap(full_map,y,all_dates,large_data= True)
 #     print(texts[i] + " X: "+ str(x_poses[i]) + " Y: "+ str(y_poses[i]))
 
 
-plt.gcf().autofmt_xdate()
-fig.savefig("Inter-Cluster_Engagement_Map.jpeg")
+# plt.gcf().autofmt_xdate()
+# fig.savefig("Inter-Cluster_Engagement_Map.jpeg")
 plt.show()
 
 
