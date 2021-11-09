@@ -69,6 +69,9 @@ cluster_maps = [engagementMap(cluster) for cluster in clusters]
 cluster_users = [item for sublist in clusters for item in sublist]
 full_map = engagementMap(cluster_users)
 full_user_map = engagementMap(users)
+
+fingerprintCluster = algos.fingerprintCluster(users, 20)
+
 def plotSegmentedEngagementMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,large_data = False):
     i = 0
     for key,engagers in engagement_dict.items():
@@ -106,13 +109,13 @@ def plotSegmentedEngagementMap(engagement_dict,y,cluster_users,all_dates,x_label
         plt.gcf().autofmt_xdate()
 def plotFingerPrint(fingerPrint):
     # plt.figure()
-    count, bins_count = np.histogram(fingerPrint[0:23], bins=24)
+    count, bins_count = np.histogram(fingerPrint, bins=24)
     pdf = count / sum(count)
     cdf = np.cumsum(pdf)
     print(len(fingerPrint))
-    x = np.arange(1,24)
-    fingerPrint = [element * 2 for element in fingerPrint[0:23]]
-    plt.plot(x,cdf)
+    x = np.arange(0,25)
+    
+    plt.plot(x,fingerPrint)
 # def getNumFollowers(user):
 #     return user.follower_count
 # def getNum(user):
@@ -237,10 +240,13 @@ texts = []
 # ax.axes.yaxis.set_visible(False)
 # plt.scatter(all_dates,y, marker='o', c='black', lw=.25)
 # plotEngagemetMap(full_map,y,cluster_users,all_dates,large_data= True)
-fig = plt.figure()
-ax = plt.gca()
-for i in range(10):
-    plotFingerPrint(users[i].fingerprint)
+
+for cluster in fingerprintCluster:
+    fig = plt.figure()
+    ax = plt.gca()
+    for user in cluster:
+        plotFingerPrint(user.getFingerprint())
+    fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
 # vals = ax.get_yticks()
 # ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
 # plotEngagemetMap(full_user_map,y,users,all_user_dates,segment=True)

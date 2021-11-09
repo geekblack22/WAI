@@ -145,5 +145,5 @@ class User:
 	def getFingerprint(self):
 		thisyear = sum(self.fingerprint)
 		if thisyear == 0.0:	
-			return self.fingerprint
+			return self.fingerprint[0:25]
 		return [(1 / thisyear) * bucket for bucket in self.fingerprint][0:25]
