@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy.core.defchararray import startswith
 import twitterInterface 
 import os
 import algos
@@ -68,19 +69,7 @@ cluster_maps = [engagementMap(cluster) for cluster in clusters]
 cluster_users = [item for sublist in clusters for item in sublist]
 full_map = engagementMap(cluster_users)
 full_user_map = engagementMap(users)
-
-def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,large_data = False,segment = False):
-    mid_ys = []
-    mid_dates = []
-    
-    NUM_COLORS = len(engagement_dict)
-    cm = plt.get_cmap('jet')
-    rcParams['axes.prop_cycle'] = cycler(color=cm(np.linspace(0, 1, NUM_COLORS)))
-    scale = 400
-    if large_data:
-        scale = 60
-    
-    
+def plotSegmentedEngagementMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,large_data = False):
     i = 0
     for key,engagers in engagement_dict.items():
         i+=1
@@ -106,7 +95,91 @@ def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,large_data = Fals
      
         print(max_size)
         print("size: " + str(size))
-        size = [(s/float(max_size))*scale for s in size]
+        size = [min(s*20,50) if s < 22 else s for s in size]
+        fig = plt.figure()  
+        fig.suptitle(str(seed_user)+" Engagement Map", fontsize=20) 
+        ax = plt.gca()
+        ax.set_xlabel(x_label, fontsize=10)
+        ax.set_ylabel(y_label, fontsize=10)
+        # plt.scatter(engagers,y_line,color = "black")
+        plt.scatter(engagers,y_line,s = size,color = "red", alpha = overlapping)
+        plt.gcf().autofmt_xdate()
+def plotFingerPrint(fingerPrint):
+    plt.figure()
+    count, bins_count = np.histogram(fingerPrint[0:24], bins=24)
+    pdf = count / sum(count)
+    cdf = np.cumsum(pdf)
+    print(len(cdf))
+    x = np.arange(0,24)
+    plt.plot(x,cdf)
+
+# def getNumFollowers(user):
+#     return user.follower_count
+# def getNum(user):
+#     return user.tweet_count
+# def getSeedUsers(user):
+#     return [engagement[1] for engagement in user.engagement] 
+# def common_member(a, b):
+#     a_set = set(a)
+#     b_set = set(b)
+ 
+#     if (a_set & b_set):
+#         return (a_set & b_set)
+# def returnCrossEngagement(cluster_1,Cluster_2):
+#    for user in cluster_1:
+#        for usr in Cluster_2:
+           
+
+# def intraClusterMap(clusters,count):
+#     x = []
+#     y = []
+
+#     for cluster in clusters:
+#         for user in cluster:
+#             for
+def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,large_data = False,segment = False):
+    mid_ys = []
+    mid_dates = []
+    
+    NUM_COLORS = len(engagement_dict)
+    cm = plt.get_cmap('jet')
+    rcParams['axes.prop_cycle'] = cycler(color=cm(np.linspace(0, 1, NUM_COLORS)))
+    scale = 400
+    if large_data:
+        scale = 60
+    
+    
+    i = 0
+    fig = plt.figure()
+    ax = plt.gca()
+    ax.set_xlabel(x_label, fontsize=10)
+    ax.set_ylabel(y_label, fontsize=10)
+    plt.scatter(all_dates,y, marker='o', c='black', lw=.25)
+    for key,engagers in engagement_dict.items():
+        i+=1
+        plt.rcParams["figure.autolayout"] = True
+        dates = [date.strftime('%m/%d/%Y') for date in all_dates]
+        res = [dates.index(i.strftime('%m/%d/%Y')) for i in engagers]
+        y_line = [y[ind] for ind in res]
+        seed_user = db.getUsername(str(key))
+        overlapping = .75
+        max_date = max(engagers)
+       
+        min_date = min(engagers)
+        mid_date = min_date + (max_date - min_date)/2
+        max_y = y_line[engagers.index(max_date)]
+        min_y = y_line[engagers.index(min_date)]
+        mid_y = min_y + (max_y - min_y)/2
+        distance = (max_date - min_date)
+        engagement = [[engagement[0] for engagement in user.engagement] for user in cluster_users]
+        engagement =  [item for sublist in engagement for item in sublist]
+        size = [engagement[ind] for ind in res]
+       
+        max_size = max(size)
+     
+        print(max_size)
+        print("size: " + str(size))
+        size = [min(s*20,50) if s < 22 else s for s in size]
         print("resize: " + str(size))
       
 
@@ -120,24 +193,10 @@ def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,large_data = Fals
         # y_label = y_data[-1]
         # x_label = x_data[-1]
         
-        if segment:
-            
-            fig = plt.figure()  
-            fig.suptitle(str(seed_user)+" Engagement Map", fontsize=20) 
-            ax = plt.gca()
-            ax.set_xlabel("Creation Dates", fontsize=10)
-            ax.set_ylabel("Tweet Count", fontsize=10)
-            # plt.scatter(engagers,y_line,color = "black")
-            plt.scatter(engagers,y_line,s = size,color = "red", alpha = overlapping)
-            plt.gcf().autofmt_xdate()
-            if i == 20:
-                break
-        else:
-
-            plt.scatter(engagers,y_line,s = size, alpha = overlapping)
-            plt.plot(engagers,y_line,label = seed_user)
-            plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))   
-            plt.gcf().autofmt_xdate()   
+        plt.scatter(engagers,y_line,s = size, alpha = overlapping)
+        plt.plot(engagers,y_line,label = seed_user)
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))   
+        plt.gcf().autofmt_xdate()   
         # ax.axes.yaxis.set_visible(False)
 
 
@@ -178,7 +237,9 @@ texts = []
 # ax.axes.yaxis.set_visible(False)
 # plt.scatter(all_dates,y, marker='o', c='black', lw=.25)
 # plotEngagemetMap(full_map,y,cluster_users,all_dates,large_data= True)
-plotEngagemetMap(full_user_map,y,users,all_user_dates,segment=True)
+plotFingerPrint(users[5].fingerprint)
+
+# plotEngagemetMap(full_user_map,y,users,all_user_dates,segment=True)
 
 
 # for i in range(len(texts)):
