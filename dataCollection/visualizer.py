@@ -60,9 +60,9 @@ def engagementMap(users):
     for user in users:
         for engagemet in user.engagement:
             if engagemet[1] in engagement_dict:
-                engagement_dict[engagemet[1]].append(user.creationDate)
+                engagement_dict[engagemet[1]].append(user)
             else:
-                engagement_dict[engagemet[1]] = [user.creationDate]
+                engagement_dict[engagemet[1]] = [user]
     return engagement_dict
 
 cluster_maps = [engagementMap(cluster) for cluster in clusters]
@@ -139,7 +139,17 @@ def plotFingerPrint(fingerPrint):
 
 #     for cluster in clusters:
 #         for user in cluster:
-#             for
+# 
+#            for
+def pairEngagement(list):
+    pairs = []
+    for i in range(len(list)):
+        for j in range(i+1, len(list)):
+            tupple = (list[i],list[j])
+            pairs.append(tupple)
+            print(tupple)
+    return pairs
+
 def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,large_data = False,segment = False):
     mid_ys = []
     mid_dates = []
@@ -241,12 +251,12 @@ texts = []
 # plt.scatter(all_dates,y, marker='o', c='black', lw=.25)
 # plotEngagemetMap(full_map,y,cluster_users,all_dates,large_data= True)
 
-for cluster in fingerprintCluster:
-    fig = plt.figure()
-    ax = plt.gca()
-    for user in cluster:
-        plotFingerPrint(user.getFingerprint())
-    fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
+# for cluster in fingerprintCluster:
+#     fig = plt.figure()
+#     ax = plt.gca()
+#     for user in cluster:
+#         plotFingerPrint(user.getFingerprint())
+#     fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
 # vals = ax.get_yticks()
 # ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
 # plotEngagemetMap(full_user_map,y,users,all_user_dates,segment=True)
@@ -261,7 +271,7 @@ for cluster in fingerprintCluster:
 
 # plt.gcf().autofmt_xdate()
 # fig.savefig("Inter-Cluster_Engagement_Map.jpeg")
-plt.show()
+# plt.show()
 
 
 

@@ -77,12 +77,17 @@ class Database:
 		return User(idStr, [], usr[1], usr[4], usr[5], ID = usr[0], engagement = [(int(n), int(user)) for n,user in zip(usr[2].split(","),usr[3].split(","))],fingerprint = [float(n) for n in usr[6].split(",")])
 
 	def getUsername(self,user_id):
-			self.cursor.execute("""SELECT [screenName] FROM [dbo].[Handle] WHERE [IDStr] = ?""",(user_id))
-			result =  self.cursor.fetchall()
-			user_name = str(result[0])
-			user_name = user_name.translate(str.maketrans('','', "(),'"))
-			
-			return user_name
+		self.cursor.execute("""SELECT [screenName] FROM [dbo].[Handle] WHERE [IDStr] = ?""",(user_id))
+		result =  self.cursor.fetchall()
+		user_name = str(result[0])
+		user_name = user_name.translate(str.maketrans('','', "(),'"))
+		return user_name.strip()
+	def getCountry(self,user_id):
+		self.cursor.execute("""SELECT [country] FROM [dbo].[Handle] WHERE [IDStr] = ?""",(user_id))
+		result =  self.cursor.fetchall()
+		country= str(result[0])
+		country = country.translate(str.maketrans('','', "(),'"))
+		return country.strip()
 
 	def updateUser(self,user):
 		self.cursor.execute("""UPDATE [dbo].[User] SET [IDstr] = ?, [creationDate] = ?, [numberOfFollowers] = ?, [numberOfTweets] = ?, [engagementAmount] = ?, [engagementUsers] = ?, [fingerprint] = ? WHERE [ID] = ?""",(user.IDstr, user.creationDate, user.follower_count, user.tweet_count, str([i[0] for i in user.engagement])[1:-1], str([i[1] for i in user.engagement])[1:-1],str(user.fingerprint)[1:-1], user.ID))
