@@ -26,8 +26,10 @@ def main():
 	
 
 	db = database.Database(server_2,database_2,uid_2,pwd_2)
-	db.clean()
-	db.cursor.commit()
+	users = db.getAllUsers()
+	clusters = algos.fingerprintCluster(users, 10)
+	print([cluster[0].getFingerprint() for cluster in clusters])
+	
 
 
 if __name__ == "__main__":
