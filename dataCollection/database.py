@@ -36,7 +36,6 @@ class Database:
 		lst = self.cursor.execute("SELECT [tweetID],[idStr],[screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet] WHERE [idStr] = '" + id + "'")
 		tweets = [Tweet(row[0],row[1],row[2],row[3] if row[3] is not None else 0, row[4]) for row in lst]
 		return tweets
-
 	def seenSeed(self, idstr):
 		print(idstr)
 		lst = self.cursor.execute("""SELECT [ID] FROM [dbo].[User] WHERE [engagementUsers] LIKE '{}'""".format("%" + idstr + "%"))
@@ -142,8 +141,19 @@ class User:
 		self.tweet_count = tweet_count
 		self.engagement = engagement
 		self.fingerprint = fingerprint
+		self.countries = None
 	def getFingerprint(self):
 		thisyear = sum(self.fingerprint)
 		if thisyear == 0.0:	
 			return self.fingerprint[0:25]
 		return [(1 / thisyear) * bucket for bucket in self.fingerprint][0:25]
+	def getCountries(self,db):
+		if self.countries != None:
+			return self.countries
+		ret  = {'ru':0,'ch':0,'ir':0} 
+		for item in self.engagement:
+			s = str(item[1])
+			s = s + " "*(20-len(s))
+			ret[db.getCountry(s)] += 1
+		self.countries = ret
+		return ret
