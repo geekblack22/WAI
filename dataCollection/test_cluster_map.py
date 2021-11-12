@@ -54,7 +54,7 @@ css = """/* basic positioning */
 html_piece = """<ul class="legend">"""
 html_end = "</ul>"
 
-def addColor(label, color):
+def addLabel(label, color):
 	global html_piece, css
 	piece = f"""<li><span class="{label}"></span> {label}</li>\n"""
 	stylepiece = f""".legend .{label} {{ background-color:{color}; }}\n"""
@@ -62,9 +62,9 @@ def addColor(label, color):
 	css += stylepiece
 
 	
-addColor("Russia","#ff009d")
-addColor("China","#00ff2a")
-addColor("Iran","#0099ff")
+addLebel("Russia","#ff009d")
+addLebel("China","#00ff2a")
+addLebel("Iran","#0099ff")
 
 labeldict = {}
 
