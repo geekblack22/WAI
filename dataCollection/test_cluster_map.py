@@ -1,3 +1,4 @@
+from networkx.algorithms.bipartite.basic import color
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.core.defchararray import startswith
@@ -48,7 +49,7 @@ full_user_map = vis.engagementMap(users)
 labeldict = {}
 
 color_inds = [i/len(clusters) for i in range(len(clusters))]
-colors = []
+colors = {"ru":"#ff009d","ch":"#00ff2a","ir":"#0099ff"}
 i  = 0
 def plotClusterEngagement(cluster,cluster_map,ind):
     # plt.figure(figsize=(50,50))
@@ -56,9 +57,9 @@ def plotClusterEngagement(cluster,cluster_map,ind):
     net = Network("1500px", "1500px",notebook= True)
     for user in cluster:
         label= clusters.index(cluster)
-        G.add_node(user.IDstr.strip(),label = " ",color = "")
+        G.add_node(user.IDstr.strip(),label = " ",color = addColor(user))
         labeldict[user.IDstr.strip()] = str(1+label)
-    engagementEdges(cluster_map,G)
+    engagementEdges(cluster_map,G,ind)
     pos = nx.spring_layout(G,k=1,scale = 20)
     nx.draw_networkx_nodes(G, pos)
     nx.draw_networkx_edges(
@@ -67,8 +68,8 @@ def plotClusterEngagement(cluster,cluster_map,ind):
     net.from_nx(G)
     html_name = "cluster_"+str(ind)+"_.html"
     net.show("cluster_"+str(ind)+"_.html")
-    path = "/home/samedi/WAI/"+html_name
-    htmlDoc =  open(path)
+
+    htmlDoc =  open(html_name)
     with htmlDoc as fp:
        soup = BeautifulSoup(fp, 'html.parser')
     print(soup)
@@ -93,26 +94,28 @@ def plotClusterEngagement(cluster,cluster_map,ind):
     print(soup)
     htmlDoc.close()
     html = soup.prettify("utf-8")
-    with open(path, "wb") as file:
+    with open(html_name, "wb") as file:
         file.write(html)
     # nx.draw_networkx_edge_labels(G,pos)
-def addColor(list,G,color):
-    for node in list:
-        G.nodes[node]["color"] = color
-
-def engagementEdges(cluster_map,G):
-    colors = {"ru":"#ff009d","ch":"#00ff2a","ir":"#0099ff"}
+def addColor(user):
+    countries = user.getCountries(db)
+    color = colors[max(zip(countries.values(), countries.keys()))[1]]
+    return color
+def engagementEdges(cluster_map,G,i):
+   
     for key,engagers in cluster_map.items():
         users = [user.IDstr.strip() for user in engagers]
         label = db.getCountry(str(key))
         user_name = db.getUsername(str(key))
-        addColor(users,G,colors[label])
+       
         if(len(engagers) > 1):
             print(len(engagers))
             weight = len(engagers)/10
+            if i == 4 or i == 12:
+                 weight = .005
             print(weight)
             weight = min(weight,5)
-            G.add_edges_from(vis.pairEngagement(users),weight=weight)
+            G.add_edges_from(vis.pairEngagement(users),color = colors[label])
 
 # for cluster in clusters:
 #     for user in cluster:
