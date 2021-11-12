@@ -26,9 +26,10 @@ def main():
 	
 
 	db = database.Database(server_2,database_2,uid_2,pwd_2)
+	db2 = database.Database(server_1,database_1,uid_1,pwd_1)
 	users = db.getAllUsers()
-	clusters = algos.fingerprintCluster(users, 10)
-	print([cluster[0].getFingerprint() for cluster in clusters])
+	#clusters = algos.clusterFingerprint(users,30)
+	print([user.getCountries(db2) for user in users])
 	
 
 

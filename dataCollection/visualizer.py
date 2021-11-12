@@ -70,7 +70,6 @@ cluster_users = [item for sublist in clusters for item in sublist]
 full_map = engagementMap(cluster_users)
 full_user_map = engagementMap(users)
 
-fingerprintCluster = algos.fingerprintCluster(users, 20)
 
 def plotSegmentedEngagementMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,large_data = False):
     i = 0
@@ -107,15 +106,17 @@ def plotSegmentedEngagementMap(engagement_dict,y,cluster_users,all_dates,x_label
         # plt.scatter(engagers,y_line,color = "black")
         plt.scatter(engagers,y_line,s = size,color = "red", alpha = overlapping)
         plt.gcf().autofmt_xdate()
-def plotFingerPrint(fingerPrint):
+
+def plotFingerPrint(user):
+	fingerPrint = user.getFingerprint()
     # plt.figure()
-    count, bins_count = np.histogram(fingerPrint, bins=24)
-    pdf = count / sum(count)
-    cdf = np.cumsum(pdf)
-    print(len(fingerPrint))
-    x = np.arange(0,25)
-    
-    plt.plot(x,fingerPrint)
+	count, bins_count = np.histogram(fingerPrint, bins=25)
+	pdf = count / sum(count)
+	cdf = np.cumsum(pdf)
+	print(len(fingerPrint))
+	x = np.arange(0,25)
+	plt.plot(x,fingerPrint)
+
 # def getNumFollowers(user):
 #     return user.follower_count
 # def getNum(user):
@@ -240,13 +241,64 @@ texts = []
 # ax.axes.yaxis.set_visible(False)
 # plt.scatter(all_dates,y, marker='o', c='black', lw=.25)
 # plotEngagemetMap(full_map,y,cluster_users,all_dates,large_data= True)
+#newus = []
+#for user in users:
+#	countries = user.getCountries(db)
+#	if not (countries['ch'] > countries['ir'] and countries['ch'] > countries['ru']):
+#		newus.append(user)	
+#users = newus
+		
+fingerprintCluster = algos.fingerprintCluster(users, 30)
+fingerprintCluster.append(users)
 
+fig, ax = plt.subplots()
+irs = np.array([])
+chs = np.array([])
+rus = np.array([])
+
+irstd = np.array([])
+chstd = np.array([])
+rustd = np.array([])
 for cluster in fingerprintCluster:
-    fig = plt.figure()
-    ax = plt.gca()
-    for user in cluster:
-        plotFingerPrint(user.getFingerprint())
-    fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
+	ir = 0
+	ch = 0
+	ru = 0
+	iri = np.array([])
+	chi = np.array([])
+	rui = np.array([])
+	s = 0
+	for user in cluster:
+		countries = user.getCountries(db)
+		iri = np.append(iri,countries['ir'])
+		chi = np.append(chi,countries['ch'])
+		rui = np.append(rui,countries['ru'])
+	ir = sum(iri)
+	ch = sum(chi)
+	ru = sum(rui)
+	s = ir+ru+ch
+	irstd = np.append(irstd,np.std(iri/s))
+	chstd = np.append(chstd,np.std(chi/s))
+	rustd = np.append(rustd,np.std(rui/s))
+	print(ir/s,ch/s,ru/s,ir/s+ch/s+ru/s, irstd[-1])
+	irs = np.append(irs,ir/s)
+	chs = np.append(chs,ch/s)
+	rus = np.append(rus,ru/s)
+	
+
+width = .75
+labels = [str(x) for x in range(30)] + ["all"]
+
+ax.bar(labels, irs, width, yerr = irstd, label='ir')
+ax.bar(labels, chs, width, yerr = chstd, bottom = irs, label='ch')
+ax.bar(labels, rus, width, yerr = rustd, bottom = chs+irs,label='ru')
+ax.legend()
+
+
+		
+		
+		
+		
+    #fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
 # vals = ax.get_yticks()
 # ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
 # plotEngagemetMap(full_user_map,y,users,all_user_dates,segment=True)
