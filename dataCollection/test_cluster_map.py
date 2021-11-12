@@ -45,6 +45,31 @@ cluster_users = [item for sublist in clusters for item in sublist]
 full_map = vis.engagementMap(cluster_users)
 full_user_map = vis.engagementMap(users)
 
+css = """/* basic positioning */
+	.legend { list-style: none; }
+	.legend li { float: left; margin-right: 10px; }
+	.legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
+	/* your colors */
+	.legend .Russia { background-color: #ff009d; }
+	.legend .China { background-color:#00ff2a; }
+	.legend .Iran { background-color: #0099ff; }"""
+html_piece = """<ul class="legend">
+	<li><span class="Russia"></span> Russia</li>
+	<li><span class="China"></span> China</li>
+	<li><span class="Iran"></span> Iran</li>"""
+html_end = "</ul>"
+
+def addColor(label, color):
+	piece = f"""<li><span class="{label}"></span> {label}</li>\n"""
+	stylepiece = f""".legend .{label} { background-color:{color}; }\n"""
+	html_piece.append(piece)
+	css.append(stylepiece)
+
+	
+addColor("Russia","#ff009d")
+addColor("China","#00ff2a")
+addColor("Iran","#0099ff")
+
 labeldict = {}
 
 color_inds = [i/len(clusters) for i in range(len(clusters))]
@@ -74,22 +99,9 @@ def plotClusterEngagement(cluster,cluster_map,ind):
     print(soup)
     style = soup.find('style', type='text/css')
     body = soup.find('body')
-    css = """/* basic positioning */
-        .legend { list-style: none; }
-        .legend li { float: left; margin-right: 10px; }
-        .legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
-        /* your colors */
-        .legend .Russia { background-color: #ff009d; }
-        .legend .China { background-color:#00ff2a; }
-        .legend .Iran { background-color: #0099ff; }"""
-    html_piece = """<ul class="legend">
-        <li><span class="Russia"></span> Russia</li>
-        <li><span class="China"></span> China</li>
-        <li><span class="Iran"></span> Iran</li>
-    </ul>"""
     html_piece = BeautifulSoup(str(html_piece),'html.parser')
     style.append(css)
-    body.insert_before(html_piece)
+    body.insert_before(html_piece+html_end)
     print(soup)
     htmlDoc.close()
     html = soup.prettify("utf-8")
