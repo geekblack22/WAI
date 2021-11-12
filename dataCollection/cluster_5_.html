@@ -1,0 +1,104 @@
+<html>
+ <head>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" rel="stylesheet" type="text/css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js" type="text/javascript">
+  </script>
+  <center>
+   <h1>
+   </h1>
+  </center>
+  <!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+  <style type="text/css">
+   #mynetwork {
+            width: 1500px;
+            height: 1500px;
+            background-color: #ffffff;
+            border: 1px solid lightgray;
+            position: relative;
+            float: left;
+        }
+   /* basic positioning */
+	.legend { list-style: none; }
+	.legend li { float: left; margin-right: 10px; }
+	.legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
+	/* your colors */
+	.legend .Russia { background-color:#ff009d; }
+.legend .China { background-color:#00ff2a; }
+.legend .Iran { background-color:#0099ff; }
+  </style>
+ </head>
+ <body>
+  <div id="mynetwork">
+  </div>
+  <script type="text/javascript">
+   // initialize global variables.
+    var edges;
+    var nodes;
+    var network; 
+    var container;
+    var options, data;
+
+    
+    // This method is responsible for drawing the graph, returns the drawn network
+    function drawGraph() {
+        var container = document.getElementById('mynetwork');
+        
+        
+
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([{"color": "#00ff2a", "id": "1037003353849581568", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "4831047668", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1029952722622210049", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1243833610693685251", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1287685619964157952", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "816290468350672897", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1180499818982100992", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1331243438805643264", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1326448135518892034", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1355937462409981953", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "893164265028431872", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "814805693832294400", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "830834615933870080", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1108958322667876354", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1247863323280003073", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1000837083827752965", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "964826848545865729", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "871323201296531457", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1184538436461613057", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1042001429953740800", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "950443548243124225", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "4064423659", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1319072465398579200", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1302517222288523264", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1247184433167437825", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1423217669843689477", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "398761784", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "2468749700", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "964460759345332224", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1377290182232305664", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "535959742", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1086569400570863616", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1364750022089269250", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "539619875", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1410919339864297475", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "635702537", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1081084540372860928", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1680205122", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1234796463026298882", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "305384896", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1407193297681068035", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1163733448818921473", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1207891730806329344", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "470426763", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1379759475301748738", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "563672403", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "912357063673761792", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1239512392381366272", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1234167461206867968", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1070830112524918785", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1436446846285647874", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "998790834131755008", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1181141257", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1176936687504699392", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "2694895650", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1223493823998894080", "label": " ", "shape": "dot", "size": 10}]);
+        edges = new vis.DataSet([{"color": "#00ff2a", "from": "1037003353849581568", "to": "4831047668", "weight": 1}, {"color": "#00ff2a", "from": "1037003353849581568", "to": "1029952722622210049", "weight": 1}, {"color": "#00ff2a", "from": "1037003353849581568", "to": "1243833610693685251", "weight": 1}, {"color": "#00ff2a", "from": "1037003353849581568", "to": "1287685619964157952", "weight": 1}, {"color": "#00ff2a", "from": "1037003353849581568", "to": "816290468350672897", "weight": 1}, {"color": "#00ff2a", "from": "1037003353849581568", "to": "1180499818982100992", "weight": 1}, {"color": "#00ff2a", "from": "1037003353849581568", "to": "1331243438805643264", "weight": 1}, {"color": "#00ff2a", "from": "1037003353849581568", "to": "1326448135518892034", "weight": 1}, {"color": "#00ff2a", "from": "1037003353849581568", "to": "1355937462409981953", "weight": 1}, {"color": "#00ff2a", "from": "1037003353849581568", "to": "893164265028431872", "weight": 1}, {"color": "#0099ff", "from": "814805693832294400", "to": "830834615933870080", "weight": 1}, {"color": "#0099ff", "from": "814805693832294400", "to": "1108958322667876354", "weight": 1}, {"color": "#0099ff", "from": "814805693832294400", "to": "1247863323280003073", "weight": 1}, {"color": "#0099ff", "from": "814805693832294400", "to": "1000837083827752965", "weight": 1}, {"color": "#0099ff", "from": "814805693832294400", "to": "964826848545865729", "weight": 1}, {"color": "#0099ff", "from": "814805693832294400", "to": "871323201296531457", "weight": 1}, {"color": "#0099ff", "from": "814805693832294400", "to": "1184538436461613057", "weight": 1}, {"color": "#0099ff", "from": "814805693832294400", "to": "1042001429953740800", "weight": 1}, {"color": "#0099ff", "from": "814805693832294400", "to": "950443548243124225", "weight": 1}, {"color": "#0099ff", "from": "830834615933870080", "to": "1108958322667876354", "weight": 1}, {"color": "#0099ff", "from": "830834615933870080", "to": "1247863323280003073", "weight": 1}, {"color": "#0099ff", "from": "1108958322667876354", "to": "1247863323280003073", "weight": 1}, {"color": "#00ff2a", "from": "4064423659", "to": "1319072465398579200", "weight": 1}, {"color": "#0099ff", "from": "1302517222288523264", "to": "1247184433167437825", "weight": 1}, {"color": "#0099ff", "from": "1302517222288523264", "to": "1423217669843689477", "weight": 1}, {"color": "#0099ff", "from": "1302517222288523264", "to": "398761784", "weight": 1}, {"color": "#0099ff", "from": "1247184433167437825", "to": "1423217669843689477", "weight": 1}, {"color": "#0099ff", "from": "1247184433167437825", "to": "398761784", "weight": 1}, {"color": "#0099ff", "from": "1423217669843689477", "to": "398761784", "weight": 1}, {"color": "#00ff2a", "from": "4831047668", "to": "1029952722622210049", "weight": 1}, {"color": "#00ff2a", "from": "4831047668", "to": "1243833610693685251", "weight": 1}, {"color": "#00ff2a", "from": "4831047668", "to": "1287685619964157952", "weight": 1}, {"color": "#00ff2a", "from": "4831047668", "to": "816290468350672897", "weight": 1}, {"color": "#00ff2a", "from": "4831047668", "to": "1180499818982100992", "weight": 1}, {"color": "#00ff2a", "from": "4831047668", "to": "1331243438805643264", "weight": 1}, {"color": "#00ff2a", "from": "4831047668", "to": "1326448135518892034", "weight": 1}, {"color": "#00ff2a", "from": "4831047668", "to": "1355937462409981953", "weight": 1}, {"color": "#00ff2a", "from": "4831047668", "to": "893164265028431872", "weight": 1}, {"color": "#00ff2a", "from": "1029952722622210049", "to": "1243833610693685251", "weight": 1}, {"color": "#00ff2a", "from": "1029952722622210049", "to": "1287685619964157952", "weight": 1}, {"color": "#00ff2a", "from": "1029952722622210049", "to": "816290468350672897", "weight": 1}, {"color": "#00ff2a", "from": "1029952722622210049", "to": "1180499818982100992", "weight": 1}, {"color": "#00ff2a", "from": "1029952722622210049", "to": "1331243438805643264", "weight": 1}, {"color": "#00ff2a", "from": "1243833610693685251", "to": "1287685619964157952", "weight": 1}, {"color": "#00ff2a", "from": "1243833610693685251", "to": "816290468350672897", "weight": 1}, {"color": "#00ff2a", "from": "1243833610693685251", "to": "1180499818982100992", "weight": 1}, {"color": "#00ff2a", "from": "1243833610693685251", "to": "1331243438805643264", "weight": 1}, {"color": "#00ff2a", "from": "1287685619964157952", "to": "816290468350672897", "weight": 1}, {"color": "#00ff2a", "from": "1287685619964157952", "to": "1180499818982100992", "weight": 1}, {"color": "#00ff2a", "from": "1287685619964157952", "to": "1331243438805643264", "weight": 1}, {"color": "#00ff2a", "from": "816290468350672897", "to": "1180499818982100992", "weight": 1}, {"color": "#00ff2a", "from": "816290468350672897", "to": "1331243438805643264", "weight": 1}, {"color": "#00ff2a", "from": "1180499818982100992", "to": "1331243438805643264", "weight": 1}, {"color": "#00ff2a", "from": "2468749700", "to": "964460759345332224", "weight": 1}, {"color": "#00ff2a", "from": "1326448135518892034", "to": "1355937462409981953", "weight": 1}, {"color": "#00ff2a", "from": "1326448135518892034", "to": "893164265028431872", "weight": 1}, {"color": "#00ff2a", "from": "1355937462409981953", "to": "893164265028431872", "weight": 1}, {"color": "#ff009d", "from": "1377290182232305664", "to": "535959742", "weight": 1}, {"color": "#ff009d", "from": "1377290182232305664", "to": "1086569400570863616", "weight": 1}, {"color": "#ff009d", "from": "1377290182232305664", "to": "1364750022089269250", "weight": 1}, {"color": "#ff009d", "from": "535959742", "to": "1086569400570863616", "weight": 1}, {"color": "#ff009d", "from": "535959742", "to": "1364750022089269250", "weight": 1}, {"color": "#ff009d", "from": "1086569400570863616", "to": "1364750022089269250", "weight": 1}, {"color": "#0099ff", "from": "1000837083827752965", "to": "964826848545865729", "weight": 1}, {"color": "#0099ff", "from": "1000837083827752965", "to": "871323201296531457", "weight": 1}, {"color": "#0099ff", "from": "1000837083827752965", "to": "1184538436461613057", "weight": 1}, {"color": "#0099ff", "from": "1000837083827752965", "to": "1042001429953740800", "weight": 1}, {"color": "#0099ff", "from": "1000837083827752965", "to": "950443548243124225", "weight": 1}, {"color": "#0099ff", "from": "964826848545865729", "to": "871323201296531457", "weight": 1}, {"color": "#0099ff", "from": "964826848545865729", "to": "1184538436461613057", "weight": 1}, {"color": "#0099ff", "from": "964826848545865729", "to": "1042001429953740800", "weight": 1}, {"color": "#0099ff", "from": "964826848545865729", "to": "950443548243124225", "weight": 1}, {"color": "#0099ff", "from": "871323201296531457", "to": "1184538436461613057", "weight": 1}, {"color": "#0099ff", "from": "871323201296531457", "to": "1042001429953740800", "weight": 1}, {"color": "#0099ff", "from": "871323201296531457", "to": "950443548243124225", "weight": 1}, {"color": "#0099ff", "from": "1184538436461613057", "to": "1042001429953740800", "weight": 1}, {"color": "#0099ff", "from": "1184538436461613057", "to": "950443548243124225", "weight": 1}, {"color": "#0099ff", "from": "1042001429953740800", "to": "950443548243124225", "weight": 1}, {"color": "#00ff2a", "from": "539619875", "to": "1410919339864297475", "weight": 1}, {"color": "#00ff2a", "from": "539619875", "to": "635702537", "weight": 1}, {"color": "#00ff2a", "from": "1410919339864297475", "to": "635702537", "weight": 1}, {"color": "#ff009d", "from": "1081084540372860928", "to": "1680205122", "weight": 1}]);
+
+        // adding nodes and edges to the graph
+        data = {nodes: nodes, edges: edges};
+
+        var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": false,
+            "type": "continuous"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+        
+        
+
+        
+
+        network = new vis.Network(container, data, options);
+	 
+        
+
+
+        
+
+        return network;
+
+    }
+
+    drawGraph();
+  </script>
+ </body>
+</html>

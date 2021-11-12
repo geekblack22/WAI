@@ -46,12 +46,34 @@ cluster_users = [item for sublist in clusters for item in sublist]
 full_map = vis.engagementMap(cluster_users)
 full_user_map = vis.engagementMap(users)
 
+css = """/* basic positioning */
+	.legend { list-style: none; }
+	.legend li { float: left; margin-right: 10px; }
+	.legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
+	/* your colors */
+	"""
+html_piece = """<ul class="legend">"""
+html_end = "</ul>"
+
+def addLabel(label, color):
+	global html_piece, css
+	piece = f"""<li><span class="{label}"></span> {label}</li>\n"""
+	stylepiece = f""".legend .{label} {{ background-color:{color}; }}\n"""
+	html_piece += piece
+	css += stylepiece
+
+	
+addLebel("Russia","#ff009d")
+addLebel("China","#00ff2a")
+addLebel("Iran","#0099ff")
+
 labeldict = {}
 
 color_inds = [i/len(clusters) for i in range(len(clusters))]
 colors = {"ru":"#ff009d","ch":"#00ff2a","ir":"#0099ff"}
 i  = 0
 def plotClusterEngagement(cluster,cluster_map,ind):
+<<<<<<< HEAD
     # plt.figure(figsize=(50,50))
     G = nx.Graph()
     net = Network("1500px", "1500px",notebook= True)
@@ -103,6 +125,47 @@ def addColor(user):
     return color
 def engagementEdges(cluster_map,G,i):
    
+=======
+	global html_piece, css
+	# plt.figure(figsize=(50,50))
+	G = nx.Graph()
+	net = Network("1500px", "1500px",notebook= True)
+	for user in cluster:
+		label= clusters.index(cluster)
+		G.add_node(user.IDstr.strip(),label = " ",color = "")
+		labeldict[user.IDstr.strip()] = str(1+label)
+	engagementEdges(cluster_map,G)
+	pos = nx.spring_layout(G,k=1,scale = 20)
+	nx.draw_networkx_nodes(G, pos)
+	nx.draw_networkx_edges(
+	G, pos,arrowstyle = '-',
+	connectionstyle="arc3,rad=0.5",width= 1.5)
+	net.from_nx(G)
+	html_name = "cluster_"+str(ind)+"_.html"
+	net.show("cluster_"+str(ind)+"_.html")
+	path = "./" + html_name
+	htmlDoc =  open(path)
+	with htmlDoc as fp:
+	   soup = BeautifulSoup(fp, 'html.parser')
+	print(soup)
+	style = soup.find('style', type='text/css')
+	body = soup.find('body')
+	html_piece = BeautifulSoup(str(html_piece)+str(html_end),'html.parser')
+	style.append(css)
+	body.insert_before(html_piece)
+	print(soup)
+	htmlDoc.close()
+	html = soup.prettify("utf-8")
+	with open(path, "wb") as file:
+		file.write(html)
+	# nx.draw_networkx_edge_labels(G,pos)
+def addColor(list,G,color):
+    for node in list:
+        G.nodes[node]["color"] = color
+
+def engagementEdges(cluster_map,G):
+    colors = {"ru":"#ff009d","ch":"#00ff2a","ir":"#0099ff"}
+>>>>>>> 98fa4e592fc53295d75b01d538fb9e7c7c119cb2
     for key,engagers in cluster_map.items():
         users = [user.IDstr.strip() for user in engagers]
         label = db.getCountry(str(key))

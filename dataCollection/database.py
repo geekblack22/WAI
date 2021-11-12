@@ -4,6 +4,7 @@ import heapq
 import pyodbc 
 import itertools
 import string
+import re
 class Database:
 	
 	def __init__(self, server, database,uid,pwd):
@@ -162,3 +163,6 @@ class User:
 			ret[db.getCountry(s)] += 1
 		self.countries = ret
 		return ret
+	def matches(self, username):
+		patern = re.compile("^[a-zA-Z]+[0-9]{4}[0-9]*$")
+		return bool(patern.match(username))
