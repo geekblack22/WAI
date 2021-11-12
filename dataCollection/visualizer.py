@@ -251,7 +251,6 @@ texts = []
 # ax.axes.yaxis.set_visible(False)
 # plt.scatter(all_dates,y, marker='o', c='black', lw=.25)
 # plotEngagemetMap(full_map,y,cluster_users,all_dates,large_data= True)
-<<<<<<< HEAD
 #newus = []
 #for user in users:
 #	countries = user.getCountries(db)
