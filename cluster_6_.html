@@ -1,0 +1,139 @@
+<html>
+ <head>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" rel="stylesheet" type="text/css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js" type="text/javascript">
+  </script>
+  <center>
+   <h1>
+   </h1>
+  </center>
+  <!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+  <style type="text/css">
+   #mynetwork {
+            width: 1500px;
+            height: 1500px;
+            background-color: #ffffff;
+            border: 1px solid lightgray;
+            position: relative;
+            float: left;
+        }
+
+        
+
+        
+        #config {
+            float: left;
+            width: 400px;
+            height: 600px;
+        }
+   /* basic positioning */
+	.legend { list-style: none; }
+	.legend li { float: left; margin-right: 10px; }
+	.legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
+	/* your colors */
+	.legend .Russia { background-color:#ff009d; }
+.legend .China { background-color:#00ff2a; }
+.legend .Iran { background-color:#0099ff; }
+  </style>
+ </head>
+ <ul class="legend">
+  <li>
+   <span class="Russia">
+   </span>
+   Russia
+  </li>
+  <li>
+   <span class="China">
+   </span>
+   China
+  </li>
+  <li>
+   <span class="Iran">
+   </span>
+   Iran
+  </li>
+ </ul>
+ <body>
+  <div id="mynetwork">
+  </div>
+  <div id="config">
+  </div>
+  <script type="text/javascript">
+   // initialize global variables.
+    var edges;
+    var nodes;
+    var network; 
+    var container;
+    var options, data;
+
+    
+    // This method is responsible for drawing the graph, returns the drawn network
+    function drawGraph() {
+        var container = document.getElementById('mynetwork');
+        
+        
+
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([{"color": "#0099ff", "id": "1213811628698787840", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "228616648", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1072787867750096897", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1280246722942455810", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1303719513490325505", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1352473062885748736", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1026416361164222464", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "944894729304633344", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1225160176883458048", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "56008220", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1082586916044894208", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "4541929757", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "951801221811179520", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "969990580313972736", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "880355196945260544", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1062320885401575424", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1287230944043204608", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1352606171954372614", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1046151445194698753", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "184273899", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "581119942", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1354846548316856323", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "30805676", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1236329141882019840", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1242449942867857408", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1346626810432417796", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1082240023267852288", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1068732830031773701", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "879708205458305024", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "4833916325", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "903963111643865091", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1092430255992815617", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "794862328034390016", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "590198498", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1225040778705211398", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1001709223", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1305530192094474241", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "827353535385894912", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "46614859", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "1316003300337123329", "label": " ", "shape": "dot", "size": 10}]);
+        edges = new vis.DataSet([{"color": "#0099ff", "from": "1213811628698787840", "to": "228616648", "weight": 1}, {"color": "#0099ff", "from": "1072787867750096897", "to": "1280246722942455810", "weight": 1}, {"color": "#0099ff", "from": "1303719513490325505", "to": "1352473062885748736", "weight": 1}, {"color": "#0099ff", "from": "1303719513490325505", "to": "1026416361164222464", "weight": 1}, {"color": "#0099ff", "from": "1352473062885748736", "to": "1026416361164222464", "weight": 1}, {"color": "#ff009d", "from": "944894729304633344", "to": "1225160176883458048", "weight": 1}, {"color": "#00ff2a", "from": "56008220", "to": "1082586916044894208", "weight": 1}, {"color": "#00ff2a", "from": "4541929757", "to": "951801221811179520", "weight": 1}, {"color": "#00ff2a", "from": "4541929757", "to": "969990580313972736", "weight": 1}, {"color": "#00ff2a", "from": "951801221811179520", "to": "969990580313972736", "weight": 1}, {"color": "#0099ff", "from": "880355196945260544", "to": "1062320885401575424", "weight": 1}, {"color": "#00ff2a", "from": "1287230944043204608", "to": "1352606171954372614", "weight": 1}, {"color": "#00ff2a", "from": "1046151445194698753", "to": "184273899", "weight": 1}, {"color": "#00ff2a", "from": "1046151445194698753", "to": "581119942", "weight": 1}, {"color": "#00ff2a", "from": "1046151445194698753", "to": "1354846548316856323", "weight": 1}, {"color": "#00ff2a", "from": "1046151445194698753", "to": "30805676", "weight": 1}, {"color": "#00ff2a", "from": "184273899", "to": "581119942", "weight": 1}, {"color": "#00ff2a", "from": "184273899", "to": "1354846548316856323", "weight": 1}, {"color": "#00ff2a", "from": "184273899", "to": "30805676", "weight": 1}, {"color": "#00ff2a", "from": "581119942", "to": "1354846548316856323", "weight": 1}, {"color": "#00ff2a", "from": "581119942", "to": "30805676", "weight": 1}, {"color": "#00ff2a", "from": "1354846548316856323", "to": "30805676", "weight": 1}, {"color": "#0099ff", "from": "1236329141882019840", "to": "1242449942867857408", "weight": 1}, {"color": "#0099ff", "from": "1236329141882019840", "to": "1346626810432417796", "weight": 1}, {"color": "#0099ff", "from": "1236329141882019840", "to": "1082240023267852288", "weight": 1}, {"color": "#0099ff", "from": "1242449942867857408", "to": "1346626810432417796", "weight": 1}, {"color": "#0099ff", "from": "1242449942867857408", "to": "1082240023267852288", "weight": 1}, {"color": "#0099ff", "from": "1346626810432417796", "to": "1082240023267852288", "weight": 1}]);
+
+        // adding nodes and edges to the graph
+        data = {nodes: nodes, edges: edges};
+
+        var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": false,
+            "type": "continuous"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+        
+        
+
+        
+        // if this network requires displaying the configure window,
+        // put it in its div
+        options.configure["container"] = document.getElementById("config");
+        
+
+        network = new vis.Network(container, data, options);
+	 
+        
+
+
+        
+
+        return network;
+
+    }
+
+    drawGraph();
+  </script>
+ </body>
+</html>

@@ -1,0 +1,139 @@
+<html>
+ <head>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" rel="stylesheet" type="text/css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js" type="text/javascript">
+  </script>
+  <center>
+   <h1>
+   </h1>
+  </center>
+  <!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+  <style type="text/css">
+   #mynetwork {
+            width: 1500px;
+            height: 1500px;
+            background-color: #ffffff;
+            border: 1px solid lightgray;
+            position: relative;
+            float: left;
+        }
+
+        
+
+        
+        #config {
+            float: left;
+            width: 400px;
+            height: 600px;
+        }
+   /* basic positioning */
+	.legend { list-style: none; }
+	.legend li { float: left; margin-right: 10px; }
+	.legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
+	/* your colors */
+	.legend .Russia { background-color:#ff009d; }
+.legend .China { background-color:#00ff2a; }
+.legend .Iran { background-color:#0099ff; }
+  </style>
+ </head>
+ <ul class="legend">
+  <li>
+   <span class="Russia">
+   </span>
+   Russia
+  </li>
+  <li>
+   <span class="China">
+   </span>
+   China
+  </li>
+  <li>
+   <span class="Iran">
+   </span>
+   Iran
+  </li>
+ </ul>
+ <body>
+  <div id="mynetwork">
+  </div>
+  <div id="config">
+  </div>
+  <script type="text/javascript">
+   // initialize global variables.
+    var edges;
+    var nodes;
+    var network; 
+    var container;
+    var options, data;
+
+    
+    // This method is responsible for drawing the graph, returns the drawn network
+    function drawGraph() {
+        var container = document.getElementById('mynetwork');
+        
+        
+
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([{"color": "#0099ff", "id": "1257037019722719235", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "2166932060", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1219631157622472704", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1052189515882754048", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "2535411684", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1358627454764605442", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "2219270682", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1242043192108818436", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1364908985682325507", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "736370437", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1245887707609542657", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "754909625791676416", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1371260843321655304", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1341600271609151488", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1259179053917102081", "label": " ", "shape": "dot", "size": 10}]);
+        edges = new vis.DataSet([{"color": "#0099ff", "from": "1257037019722719235", "to": "2166932060", "weight": 1}, {"color": "#0099ff", "from": "1257037019722719235", "to": "1219631157622472704", "weight": 1}, {"color": "#0099ff", "from": "1257037019722719235", "to": "1052189515882754048", "weight": 1}, {"color": "#0099ff", "from": "2166932060", "to": "1219631157622472704", "weight": 1}, {"color": "#0099ff", "from": "2166932060", "to": "1052189515882754048", "weight": 1}, {"color": "#0099ff", "from": "1219631157622472704", "to": "1052189515882754048", "weight": 1}, {"color": "#00ff2a", "from": "2535411684", "to": "1358627454764605442", "weight": 1}, {"color": "#00ff2a", "from": "2535411684", "to": "2219270682", "weight": 1}, {"color": "#00ff2a", "from": "2535411684", "to": "1242043192108818436", "weight": 1}, {"color": "#00ff2a", "from": "2535411684", "to": "1364908985682325507", "weight": 1}, {"color": "#00ff2a", "from": "2535411684", "to": "736370437", "weight": 1}, {"color": "#00ff2a", "from": "2535411684", "to": "1245887707609542657", "weight": 1}, {"color": "#00ff2a", "from": "2219270682", "to": "1242043192108818436", "weight": 1}, {"color": "#00ff2a", "from": "2219270682", "to": "1364908985682325507", "weight": 1}, {"color": "#00ff2a", "from": "2219270682", "to": "736370437", "weight": 1}, {"color": "#00ff2a", "from": "2219270682", "to": "1245887707609542657", "weight": 1}, {"color": "#00ff2a", "from": "1242043192108818436", "to": "1364908985682325507", "weight": 1}, {"color": "#00ff2a", "from": "1242043192108818436", "to": "736370437", "weight": 1}, {"color": "#00ff2a", "from": "1242043192108818436", "to": "1245887707609542657", "weight": 1}, {"color": "#00ff2a", "from": "1364908985682325507", "to": "736370437", "weight": 1}, {"color": "#00ff2a", "from": "1364908985682325507", "to": "1245887707609542657", "weight": 1}, {"color": "#00ff2a", "from": "736370437", "to": "1245887707609542657", "weight": 1}, {"color": "#00ff2a", "from": "754909625791676416", "to": "1371260843321655304", "weight": 1}]);
+
+        // adding nodes and edges to the graph
+        data = {nodes: nodes, edges: edges};
+
+        var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": false,
+            "type": "continuous"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+        
+        
+
+        
+        // if this network requires displaying the configure window,
+        // put it in its div
+        options.configure["container"] = document.getElementById("config");
+        
+
+        network = new vis.Network(container, data, options);
+	 
+        
+
+
+        
+
+        return network;
+
+    }
+
+    drawGraph();
+  </script>
+ </body>
+</html>
