@@ -41,6 +41,7 @@ db2 = database.Database(server_2,database_2,uid_2,pwd_2)
 users = db2.getAllUsers()
 tw = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
 clusters = algos.fingerprintCluster(users, 30)
+vis.plotfcs(clusters)
 cluster_maps = [vis.engagementMap(cluster) for cluster in clusters]
 cluster_users = [item for sublist in clusters for item in sublist]
 full_map = vis.engagementMap(cluster_users)
@@ -70,6 +71,7 @@ def addLabel(label, color):
 addLabel("Russia","#ff009d")
 addLabel("China","#00ff2a")
 addLabel("Iran","#0099ff")
+
 def plotClusterEngagement(cluster,cluster_map,ind):
 	# plt.figure(figsize=(50,50))
 	global html_piece, css
@@ -102,7 +104,11 @@ def plotClusterEngagement(cluster,cluster_map,ind):
 	
 	piece = BeautifulSoup(str(html_piece)+str(html_end),'html.parser')
 	style.append(css)
+
 	body.insert_before(piece)
+	image = BeautifulSoup(f"""<img src="Cluster_{ind}_Fingerprint.jpeg" alt="Italian Trulli">""",'html.parser')
+	body.insert_after(image)
+	print(soup)
 
 	htmlDoc.close()
 	html = soup.prettify("utf-8")
@@ -114,19 +120,28 @@ def addColor(user):
 	countries = user.getCountries(db)
 	color = colors[max(zip(countries.values(), countries.keys()))[1]]
 	return color
-def engagementEdges(cluster_map,G,i):
-   
+
+
+def engagementEdges(cluster_map,G):
+	colors = {"ru":"#ff009d","ch":"#00ff2a","ir":"#0099ff"}
 	for key,engagers in cluster_map.items():
 		users = [user.IDstr.strip() for user in engagers]
 		label = db.getCountry(str(key))
 		user_name = db.getUsername(str(key))
-	   
+		# addColor(users,G,colors[label])
+		for user,idstr in zip(engagers,users):
+			name = ""
+			name = tw.scrapeUsername(idstr)
+			if user.matches(name):
+				print(name)
+				G.nodes[idstr]["color"] = "#111111"
 		if(len(engagers) > 1):
 			print(len(engagers))
 			weight = len(engagers)/10
-
+			print(weight)
 			weight = min(weight,5)
-			G.add_edges_from(vis.pairEngagement(users),color = colors[label])
+			G.add_edges_from(vis.pairEngagement(users),weight=weight,color = colors[label])
+
 
 # for cluster in clusters:
 #     for user in cluster:

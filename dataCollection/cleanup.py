@@ -29,7 +29,7 @@ def main():
 	db2 = database.Database(server_1,database_1,uid_1,pwd_1)
 	users = db.getAllUsers()
 	#clusters = algos.clusterFingerprint(users,30)
-	print([user.getCountries(db2) for user in users])
+	[print(user.engagement) for user in users]
 	
 
 

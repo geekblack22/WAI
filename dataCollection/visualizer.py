@@ -143,13 +143,14 @@ def plotFingerPrint(user):
 # 
 #            for
 def pairEngagement(list):
-    pairs = []
-    for i in range(len(list)):
-        for j in range(i+1, len(list)):
-            tupple = (list[i],list[j])
-            pairs.append(tupple)
-            print(tupple)
-    return pairs
+	pairs = []
+	print("list: ", list)
+	for i in range(len(list)):
+		for j in range(i+1, len(list)):
+			tupple = (list[i],list[j])
+			pairs.append(tupple)
+			print(tupple)
+	return pairs
 
 def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,large_data = False,segment = False):
     mid_ys = []
@@ -258,50 +259,51 @@ texts = []
 #		newus.append(user)	
 #users = newus
 		
-fingerprintCluster = algos.fingerprintCluster(users, 30)
-fingerprintCluster.append(users)
+#fingerprintCluster = algos.fingerprintCluster(users, 30)
+#fingerprintCluster.append(users)
 
-fig, ax = plt.subplots()
-irs = np.array([])
-chs = np.array([])
-rus = np.array([])
+def plotCountryBarGraph(fingerprintCluster):
+	fig, ax = plt.subplots()
+	irs = np.array([])
+	chs = np.array([])
+	rus = np.array([])
 
-irstd = np.array([])
-chstd = np.array([])
-rustd = np.array([])
-for cluster in fingerprintCluster:
-	ir = 0
-	ch = 0
-	ru = 0
-	iri = np.array([])
-	chi = np.array([])
-	rui = np.array([])
-	s = 0
-	for user in cluster:
-		countries = user.getCountries(db)
-		iri = np.append(iri,countries['ir'])
-		chi = np.append(chi,countries['ch'])
-		rui = np.append(rui,countries['ru'])
-	ir = sum(iri)
-	ch = sum(chi)
-	ru = sum(rui)
-	s = ir+ru+ch
-	irstd = np.append(irstd,np.std(iri/s))
-	chstd = np.append(chstd,np.std(chi/s))
-	rustd = np.append(rustd,np.std(rui/s))
-	print(ir/s,ch/s,ru/s,ir/s+ch/s+ru/s, irstd[-1])
-	irs = np.append(irs,ir/s)
-	chs = np.append(chs,ch/s)
-	rus = np.append(rus,ru/s)
-	
+	irstd = np.array([])
+	chstd = np.array([])
+	rustd = np.array([])
+	for cluster in fingerprintCluster:
+		ir = 0
+		ch = 0
+		ru = 0
+		iri = np.array([])
+		chi = np.array([])
+		rui = np.array([])
+		s = 0
+		for user in cluster:
+			countries = user.getCountries(db)
+			iri = np.append(iri,countries['ir'])
+			chi = np.append(chi,countries['ch'])
+			rui = np.append(rui,countries['ru'])
+		ir = sum(iri)
+		ch = sum(chi)
+		ru = sum(rui)
+		s = ir+ru+ch
+		irstd = np.append(irstd,np.std(iri/s))
+		chstd = np.append(chstd,np.std(chi/s))
+		rustd = np.append(rustd,np.std(rui/s))
+		print(ir/s,ch/s,ru/s,ir/s+ch/s+ru/s, irstd[-1])
+		irs = np.append(irs,ir/s)
+		chs = np.append(chs,ch/s)
+		rus = np.append(rus,ru/s)
+		
 
-width = .75
-labels = [str(x) for x in range(30)] + ["all"]
+	width = .75
+	labels = [str(x) for x in range(30)] + ["all"]
 
-ax.bar(labels, irs, width, yerr = irstd, label='ir')
-ax.bar(labels, chs, width, yerr = chstd, bottom = irs, label='ch')
-ax.bar(labels, rus, width, yerr = rustd, bottom = chs+irs,label='ru')
-ax.legend()
+	ax.bar(labels, irs, width, yerr = irstd, label='ir')
+	ax.bar(labels, chs, width, yerr = chstd, bottom = irs, label='ch')
+	ax.bar(labels, rus, width, yerr = rustd, bottom = chs+irs,label='ru')
+	ax.legend()
 
 
 		
@@ -310,15 +312,15 @@ ax.legend()
 		
     #fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
 
-# for cluster in fingerprintCluster:
-#     fig = plt.figure()
-#     ax = plt.gca()
-#     for user in cluster:
-#         plotFingerPrint(user.getFingerprint())
-#     fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
-# vals = ax.get_yticks()
-# ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
-# plotEngagemetMap(full_user_map,y,users,all_user_dates,segment=True)
+def plotfcs(fingerprintCluster):
+	for cluster in fingerprintCluster:
+		fig = plt.figure()
+		ax = plt.gca()
+		for user in cluster:
+			plotFingerPrint(user)
+		fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
+		vals = ax.get_yticks()
+		ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
 
 
 # for i in range(len(texts)):
