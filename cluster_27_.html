@@ -18,6 +18,15 @@
             position: relative;
             float: left;
         }
+
+        
+
+        
+        #config {
+            float: left;
+            width: 400px;
+            height: 600px;
+        }
    /* basic positioning */
 	.legend { list-style: none; }
 	.legend li { float: left; margin-right: 10px; }
@@ -28,8 +37,27 @@
 .legend .Iran { background-color:#0099ff; }
   </style>
  </head>
+ <ul class="legend">
+  <li>
+   <span class="Russia">
+   </span>
+   Russia
+  </li>
+  <li>
+   <span class="China">
+   </span>
+   China
+  </li>
+  <li>
+   <span class="Iran">
+   </span>
+   Iran
+  </li>
+ </ul>
  <body>
   <div id="mynetwork">
+  </div>
+  <div id="config">
   </div>
   <script type="text/javascript">
    // initialize global variables.
@@ -47,15 +75,18 @@
         
 
         // parsing and collecting nodes and edges from the python
-        nodes = new vis.DataSet([{"color": "#0099ff", "id": "1258145813697617921", "label": " ", "shape": "dot", "size": 10}, {"color": "#111111", "id": "1226526062097715200", "label": " ", "shape": "dot", "size": 10}, {"color": "#111111", "id": "1250644145648963584", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1041056496593895424", "label": " ", "shape": "dot", "size": 10}, {"color": "#111111", "id": "1366386772314259459", "label": " ", "shape": "dot", "size": 10}, {"color": "#111111", "id": "1347372140538941440", "label": " ", "shape": "dot", "size": 10}, {"color": "#111111", "id": "1245997916260573185", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "460420867", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "132377368", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "4025220353", "label": " ", "shape": "dot", "size": 10}, {"color": "#111111", "id": "910346614518185984", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1087814725", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "2884953543", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1138260293853884417", "label": " ", "shape": "dot", "size": 10}, {"color": "#111111", "id": "1410719820132327428", "label": " ", "shape": "dot", "size": 10}]);
-        edges = new vis.DataSet([{"from": "1258145813697617921", "to": "1226526062097715200", "weight": 0.3}, {"from": "1258145813697617921", "to": "1250644145648963584", "weight": 0.3}, {"from": "1258145813697617921", "to": "1041056496593895424", "weight": 0.3}, {"from": "1226526062097715200", "to": "1250644145648963584", "weight": 0.3}, {"from": "1226526062097715200", "to": "1041056496593895424", "weight": 0.3}, {"from": "1366386772314259459", "to": "1347372140538941440", "weight": 0.2}, {"from": "1366386772314259459", "to": "1245997916260573185", "weight": 0.2}, {"from": "460420867", "to": "132377368", "weight": 0.2}]);
+        nodes = new vis.DataSet([{"color": "#00ff2a", "id": "1281563521394909189", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "818684277814595584", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1260649473442750466", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1211015445471346688", "label": " ", "shape": "dot", "size": 10}, {"color": "#0099ff", "id": "1212841647995666432", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "1196412332", "label": " ", "shape": "dot", "size": 10}, {"color": "#00ff2a", "id": "597635304", "label": " ", "shape": "dot", "size": 10}, {"color": "#ff009d", "id": "3790800375", "label": " ", "shape": "dot", "size": 10}]);
+        edges = new vis.DataSet([{"color": "#00ff2a", "from": "1281563521394909189", "to": "818684277814595584", "weight": 1}]);
 
         // adding nodes and edges to the graph
         data = {nodes: nodes, edges: edges};
 
         var options = {
     "configure": {
-        "enabled": false
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
     },
     "edges": {
         "color": {
@@ -86,6 +117,10 @@
         
 
         
+        // if this network requires displaying the configure window,
+        // put it in its div
+        options.configure["container"] = document.getElementById("config");
+        
 
         network = new vis.Network(container, data, options);
 	 
@@ -101,5 +136,4 @@
     drawGraph();
   </script>
  </body>
- <img alt="Italian Trulli" src="Cluster_9_Fingerprint.jpeg"/>
 </html>
