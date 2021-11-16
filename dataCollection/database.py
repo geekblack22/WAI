@@ -99,9 +99,28 @@ class Database:
 		)
 		tweet.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
 		return tweet
+	def getAllEUsers(self):
+		lst = self.cursor.execute("""SELECT * FROM [dbo].[secondaryUsers]""")
+		return lst
+	def dup(self):
+		lst = self.cursor.execute("""SELECT * FROM [dbo].[secondaryUsers] WHERE ID IN ( SELECT MAX(ID) AS MaxRecordID FROM [dbo].[secondaryUsers] GROUP BY [ID]);""")
+		return [row for row in lst]
+	def getInfo(self, ID):
+		lst = self.cursor.execute("""SELECT * FROM [dbo].[secondaryUsers] WHERE [ID] = ?""", (ID))
+		try:
+			return next(lst)
+		except:
+			return None
+
+	def addInfo(self, ID, matches, cap, ir, ch, ru):
+		self.cursor.execute("SET IDENTITY_INSERT [dbo].[secondaryUsers] ON")
+		self.cursor.execute("""INSERT INTO [dbo].[secondaryUsers] ([ID],[iran],[china],[russia],[unameM],[cap]) VALUES(?,?,?,?,?,?)""",
+		(ID,ir,ch,ru,1 if matches else 0,cap)
+		)
+		self.cursor.execute("SET IDENTITY_INSERT [dbo].[secondaryUsers] OFF")
+		
 	def clear(self):
-		self.cursor.execute("""Delete From [dbo].[User];""")
-		self.cursor.execute("""Delete From [dbo].[Tweets];""")
+		self.cursor.execute("""Delete From [dbo].[secondaryUsers];""")
 		self.db.commit()
 	def updateTweet(self,tweet):
 		self.cursor.execute("""UPDATE [dbo].[Tweets] SET [IDStr] = ?, [containsVideo] = ?, [numberOfPictures] = ?, [listOfHashtags] = ?, [time] = ?, [posterID] = ?, [retweets] = ? WHERE [ID] = ? """,
@@ -164,5 +183,5 @@ class User:
 		self.countries = ret
 		return ret
 	def matches(self, username):
-		patern = re.compile("^[a-zA-Z]+[0-9]{4}[0-9]*$")
+		patern = re.compile("^[a-zA-Z_]+[0-9]{3}[0-9]*$")
 		return bool(patern.match(username))

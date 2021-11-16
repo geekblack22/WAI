@@ -200,11 +200,15 @@ class TwitterInterface:
 
 	def scrapeUsername(self,id):
 		user_data = enumerate(sntwitter.TwitterUserScraper(str(id), isUserId = True).get_items())
+		user = None
 		for i,tweet in user_data:
 			if i > 0:
 				break
 			user = tweet.user
-		return user.username
+		if user == None:
+			return "\\NA\\"
+		else:
+			return user.username
 
 	def getNumberOfTweetsBetween(self, username, startDate, endDate):
 		return int(os.popen("snscrape --jsonl twitter-search 'from:{} since:{} until:{}' | wc -l".format(username, startDate, endDate)).read())

@@ -120,10 +120,12 @@ def engagementEdges(cluster_map,G):
 		user_name = db.getUsername(str(key))
 		addColor(users,G,colors[label])
 		for user,idstr in zip(engagers,users):
-			name = ""
-			name = tw.scrapeUsername(idstr)
-			if user.matches(name):
-				print(name)
+			name = False
+			info = db2.getInfo(user.ID)
+			if info is not None:
+				name = info[4]
+			if name:
+				print(idstr)
 				G.nodes[idstr]["color"] = "#111111"
 		if(len(engagers) > 1):
 			print(len(engagers))
