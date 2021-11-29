@@ -5,6 +5,7 @@ import pyodbc
 import itertools
 import string
 import re
+import numpy as np
 class Database:
 	
 	def __init__(self, server, database,uid,pwd):
@@ -20,7 +21,7 @@ class Database:
 			print(r)
 
 	def getAllTweets(self):
-		lst = self.cursor.execute("SELECT TOP (100) [tweetID],[idStr],[screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet]")
+		lst = self.cursor.execute("SELECT TOP (100) [TweetID],[idStr],[screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet]")
 		tweets = [Tweet(row[0],row[1],row[2],row[3] if row[3] is not None else 0, row[4]) for row in lst]
 		return tweets
 
@@ -30,11 +31,11 @@ class Database:
 		return tweets
 
 	def getAllTweetsByUser(self, screenName):
-		lst = self.cursor.execute("SELECT [tweetID],[idStr],[screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet] WHERE [screenName] = '" + screenName + "'")
+		lst = self.cursor.execute("SELECT [screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet] WHERE [screenName] = '" + screenName + "'")
 		tweets = [Tweet(row[0],row[1],row[2],row[3] if row[3] is not None else 0, row[4]) for row in lst]
 		return tweets
 	def getAllTweetsByUserID(self, id):
-		lst = self.cursor.execute("SELECT [tweetID],[idStr],[screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet] WHERE [idStr] = '" + id + "'")
+		lst = self.cursor.execute("SELECT [IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets] FROM [dbo].[Tweets] WHERE [posterID] = '" + id + "'")
 		tweets = [Tweet(row[0],row[1],row[2],row[3] if row[3] is not None else 0, row[4]) for row in lst]
 		return tweets
 	def seenSeed(self, idstr):
@@ -91,7 +92,9 @@ class Database:
 
 	def updateUser(self,user):
 		self.cursor.execute("""UPDATE [dbo].[User] SET [IDstr] = ?, [creationDate] = ?, [numberOfFollowers] = ?, [numberOfTweets] = ?, [engagementAmount] = ?, [engagementUsers] = ?, [fingerprint] = ? WHERE [ID] = ?""",(user.IDstr, user.creationDate, user.follower_count, user.tweet_count, str([i[0] for i in user.engagement])[1:-1], str([i[1] for i in user.engagement])[1:-1],str(user.fingerprint)[1:-1], user.ID))
-
+	def updateUserTweets(self,tweet):
+			print(tweet)
+			self.cursor.execute("""UPDATE [dbo].[Tweets] SET [time] = ? WHERE [IDStr] = ?""",tweet.time,tweet.IDstr)
 	def insertTweet(self,tweet):
 		print(tweet)
 		self.cursor.execute("""INSERT INTO [dbo].[Tweets] ([IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets]) VALUES(?,?,?,?,?,?,?)""",
@@ -120,7 +123,7 @@ class Database:
 		self.cursor.execute("SET IDENTITY_INSERT [dbo].[secondaryUsers] OFF")
 		
 	def clear(self):
-		self.cursor.execute("""Delete From [dbo].[secondaryUsers];""")
+		self.cursor.execute("""Delete From [dbo].[Tweets];""")
 		self.db.commit()
 	def updateTweet(self,tweet):
 		self.cursor.execute("""UPDATE [dbo].[Tweets] SET [IDStr] = ?, [containsVideo] = ?, [numberOfPictures] = ?, [listOfHashtags] = ?, [time] = ?, [posterID] = ?, [retweets] = ? WHERE [ID] = ? """,
@@ -128,6 +131,15 @@ class Database:
 		)
 		tweet.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
 		return tweet
+	def removeDuplicate(self):
+		self.cursor.execute("DELETE T FROM (SELECT *, DupRank = ROW_NUMBER() OVER (PARTITION BY IDstr ORDER BY (SELECT NULL))FROM [dbo].[Tweets]) AS T WHERE DupRank > 1" )
+	def hashtagProportions(self,users):
+		hashtags = [",".split(user.list_of_hashtags) for user in users]
+		hashtags = [item for sublist in hashtags for item in sublist]
+		unique_elements, frequency = np.unique(hashtags, return_counts=True)
+		sorted_indexes = np.argsort(frequency)[::-1]
+		sorted_by_freq = unique_elements[sorted_indexes]
+		percents = []
 def dtto(t):
 	return "'" + str(t).split(' ')[0] + "'"
 class Tweet:

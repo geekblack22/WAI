@@ -1,3 +1,4 @@
+from networkx.generators import line
 import tweepy
 import numpy as np
 import sys
@@ -11,7 +12,8 @@ from collections import Counter
 from itertools import islice
 import requests
 import snscrape.modules.twitter as sntwitter
-
+import json
+from dateutil import parser
 class TwitterInterface:
 
 	"""This class interfaces with the Twitter API"""
@@ -217,7 +219,32 @@ class TwitterInterface:
 	def getTweetDatesBetween(self, username, startDate, endDate):
 		print(f"snscrape --jsonl twitter-search 'from:{username} since:{startDate} until:{endDate}' | awk '{{print $6}}' | cut -d T -f1 | cut -c 4-")
 		lines = os.popen(f"snscrape --jsonl twitter-search 'from:{username} since:{startDate} until:{endDate}' | awk '{{print $6}}' | cut -d T -f1 | cut -c 4-").readlines()
+
 		return [datetime.datetime.strptime(line, "%y-%m-%d\n").date() for line in lines][::-1]
+	def getTweetsBetween(self, username, startDate, endDate):
+		# print(f"snscrape --jsonl twitter-search 'from:{username} since:{startDate} until:{endDate}'")
+		tweet_objects = []
+		try:
+			print("starting tweets pull for "+str(username))
+			print(f"snscrape --jsonl twitter-search 'from:{username} since:{startDate} until:{endDate}'")
+			
+			lines = os.popen(f"snscrape --jsonl twitter-search 'from:{username} since:{startDate} until:{endDate}'").readlines()
+			tweets = [json.loads(line) for line in lines]
+			print("finished tweets pull")
+
+			for tweet in tweets:
+				hashtags = ""
+						
+				if tweet["hashtags"] != None:
+					hashtags =  ",".join(tweet["hashtags"])
+				date = datetime.datetime.fromisoformat(tweet["date"])
+
+				date = date.strftime("%Y-%m-%d %I:%M%p")
+				print(date)
+				tweet_objects.append(database.Tweet(tweet["id"],retweets= tweet["retweetCount"],list_of_hashtags=hashtags,posterID= tweet["user"]["id"],time = date))
+		except:
+			print("Error user data not found")
+		return tweet_objects
 
 
 	def getAllTweets(self,id,num = 50):

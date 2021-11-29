@@ -12,6 +12,7 @@ from datetime import timedelta
 from labellines import labelLine, labelLines
 from matplotlib import rcParams, cycler
 import matplotlib.backends.backend_pdf
+import matplotlib.dates as mdates
 retweeters = [2721413702,2897373563,1282456897,2541012107,1039900418686500865,1016733350785007616,388736352,239619301,803939316871393280,767270527,317302594,985220102483333120,2335406749,2609222612,2721957062]
 n = np.arange(len(retweeters))
 y = np.zeros_like(n) + 1
@@ -52,7 +53,7 @@ clusters = algos.cluster(users,15,1209600,compare,dist)
 cluster_dates = [[user.creationDate for user in cluster] for cluster in clusters]
 all_user_dates = [user.creationDate for user in users]
 custer_engagement =  [[user.engagement for user in cluster] for cluster in clusters]
-
+fingers = algos.fingerprintCluster(users,30)
 
 
 def engagementMap(users):
@@ -110,12 +111,22 @@ def plotSegmentedEngagementMap(engagement_dict,y,cluster_users,all_dates,x_label
 def plotFingerPrint(user):
 	fingerPrint = user.getFingerprint()
     # plt.figure()
+	end_date = datetime.datetime(2021,11,8)
+	dates = []
+	date = end_date
+	for i in range(25):	
+		dates.append(date)
+		date = date - datetime.timedelta(days=15)
+	dates.reverse()   
+	
 	count, bins_count = np.histogram(fingerPrint, bins=25)
 	pdf = count / sum(count)
 	cdf = np.cumsum(pdf)
 	print(len(fingerPrint))
 	x = np.arange(0,25)
-	plt.plot(x,fingerPrint)
+
+	plt.plot(dates,fingerPrint)
+	plt.gcf().autofmt_xdate()  
 
 # def getNumFollowers(user):
 #     return user.follower_count
@@ -313,16 +324,19 @@ def plotCountryBarGraph(fingerprintCluster):
     #fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
 
 def plotfcs(fingerprintCluster):
+	
 	for cluster in fingerprintCluster:
-		fig = plt.figure()
+		fig = plt.figure(figsize=(20, 20))
 		ax = plt.gca()
 		for user in cluster:
 			plotFingerPrint(user)
-		fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
 		vals = ax.get_yticks()
+		ax.xaxis.set_major_locator(mdates.DayLocator(interval=15))
+		ax.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y'))
 		ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
+		fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
 
-
+plotfcs(fingers)
 # for i in range(len(texts)):
 #     plt.annotate(texts[i],(x_poses[i],y_poses[i]), rotation = 90, textcoords="offset points", 
 #             xytext=(0,6),
@@ -362,3 +376,4 @@ def plotfcs(fingerprintCluster):
 # plt.scatter(list_2021,np.zeros_like(list_2021) + 0, marker='o', c='red', lw=5)
 
 
+plt.show()
