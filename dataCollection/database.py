@@ -26,8 +26,8 @@ class Database:
 		#return tweets
 
 	def getAllTweetsBetween(self,start,end):
-		lst = self.cursor.execute("SELECT [tweetID],[idStr],[screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet] WHERE [createdAT] BETWEEN " + dtto(start) + " AND " + dtto(end))
-		tweets = [Tweet(row[0],row[1],row[2],row[3] if row[3] is not None else 0, row[4]) for row in lst]
+		lst = self.cursor.execute("SELECT [IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets]  FROM [dbo].[Tweets] WHERE [time] BETWEEN " + dtto(start) + " AND " + dtto(end))
+		tweets = [Tweet(row[0],list_of_hashtags= row[3],time = row[4],posterID= row[5],retweets= row[6]) for row in lst]
 		return tweets
 
 	def getAllTweetsByUser(self, screenName):
@@ -42,6 +42,17 @@ class Database:
 		lst = self.cursor.execute("SELECT [IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets] FROM [dbo].[Tweets] WHERE [posterID] = '" + id + "'")
 		tweets = [Tweet(row[0],contains_video=row[1],num_photos=row[2],list_of_hashtags=row[3],time=row[4],posterID=row[5], retweets=row[6]) for row in lst]
 		return tweets
+	def getAllTweetsBetweenByUserID(self, ids,start,end):
+		placeholders = ", ".join(["?"] * len(ids))
+		lst = self.cursor.execute("SELECT [IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets] FROM [dbo].[Tweets] WHERE [posterID] IN (""" + placeholders + ")"+" AND [time] BETWEEN " + dtto(start) + " AND " + dtto(end),ids)
+		tweets = [Tweet(row[0],list_of_hashtags= row[3],time = row[4],posterID= row[5],retweets= row[6]) for row in lst]	
+		return tweets
+
+	def checkForDuplicateTweets(self):
+		lst = self.cursor.execute("SELECT [IDStr],COUNT(*) FROM [dbo].[Tweets] GROUP BY  [IDStr] HAVING COUNT(*) > 1;")
+		tweets = [row[0] for row in lst]
+		print(len(tweets))
+		#print(tweets)
 	def seenSeed(self, idstr):
 		print(idstr)
 		lst = self.cursor.execute("""SELECT [ID] FROM [dbo].[User] WHERE [engagementUsers] LIKE '{}'""".format("%" + idstr + "%"))
@@ -144,6 +155,9 @@ class Database:
 		#return table
 			
 		
+	# def clear(self):
+	# 	self.cursor.execute("""Delete From [dbo].[Tweets];""")
+	# 	self.db.commit()
 	def updateTweet(self,tweet):
 		self.cursor.execute("""UPDATE [dbo].[Tweets] SET [IDStr] = ?, [containsVideo] = ?, [numberOfPictures] = ?, [listOfHashtags] = ?, [time] = ?, [posterID] = ?, [retweets] = ? WHERE [ID] = ? """,
 		(tweet.IDstr,tweet.contains_video,tweet.num_photos,tweet.list_of_hashtags,tweet.time,str(tweet.posterID).strip(),tweet.retweets,tweet.ID)
@@ -151,14 +165,24 @@ class Database:
 		tweet.ID = self.cursor.execute("SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY];")
 		return tweet
 	def removeDuplicate(self):
-		self.cursor.execute("DELETE T FROM (SELECT *, DupRank = ROW_NUMBER() OVER (PARTITION BY IDstr ORDER BY (SELECT NULL))FROM [dbo].[Tweets]) AS T WHERE DupRank > 1" )
-	def hashtagProportions(self,users):
-		hashtags = [",".split(user.list_of_hashtags) for user in users]
+		self.cursor.execute("DELETE FROM [dbo].[Tweets] WHERE id NOT IN ( SELECT MIN(id) FROM Tweets GROUP BY [IDStr]);")
+		self.db.commit()
+	def hashtagProportions(self,ids,start,end):
+		tweets = self.getAllTweetsBetweenByUserID(ids,start,end)
+		hashtags = [tweet.list_of_hashtags.split(",") for tweet in tweets  if (tweet.list_of_hashtags != "")]		
 		hashtags = [item for sublist in hashtags for item in sublist]
+		hashtags = [hashtag for hashtag in hashtags if hashtag.count('?')/float(len(hashtag)) < .4]
 		unique_elements, frequency = np.unique(hashtags, return_counts=True)
 		sorted_indexes = np.argsort(frequency)[::-1]
+    
 		sorted_by_freq = unique_elements[sorted_indexes]
-		percents = []
+		sorted_freq = np.sort(frequency)[::-1]
+		ret = min(int(sorted_by_freq.size*.05),20)
+
+		#percents = [float(freq)/float(len(sorted_by_freq)) * 100 for freq in frequency]
+		
+		return sorted_by_freq[:ret], sorted_freq[:ret]
+
 def dtto(t):
 	return "'" + str(t).split(' ')[0] + "'"
 class Tweet:

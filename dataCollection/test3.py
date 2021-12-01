@@ -39,6 +39,7 @@ users = None
 with open('userTweetTable.pickle', 'rb') as handle:
     users = pickle.load(handle)
 updU = []
+i=0
 for user,l in users:
 	user = db2.getUsertp(user)
 	user.fingerprint = (user.mod([datetime.strptime("{0} {1} {2} {3}".format(*date.split()), "%b %d %Y %I:%M%p").time() for date in l.split(",")]))
