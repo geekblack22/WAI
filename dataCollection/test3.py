@@ -38,10 +38,6 @@ def getCountry(user):
 users = None
 with open('userTweetTable.pickle', 'rb') as handle:
     users = pickle.load(handle)
-#users = db2.userTweetTable()
-i = 0
-#with open('userTweetTable.pickle', 'wb') as handle:
-    #pickle.dump(users, handle, protocol=pickle.HIGHEST_PROTOCOL)
 updU = []
 for user,l in users:
 	user = db2.getUsertp(user)
