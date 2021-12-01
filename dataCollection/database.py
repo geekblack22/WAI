@@ -145,6 +145,8 @@ class Database:
 	def removeDuplicate(self):
 		self.cursor.execute("DELETE FROM [dbo].[Tweets] WHERE id NOT IN ( SELECT MIN(id) FROM Tweets GROUP BY [IDStr]);")
 		self.db.commit()
+	def getHastagDates(self,hashtag,tweets):
+		return [tweet.time for tweet in tweets if(hashtag in tweet.list_of_hashtags)]
 	def hashtagProportions(self,ids,start,end):
 		tweets = self.getAllTweetsBetweenByUserID(ids,start,end)
 		hashtags = [tweet.list_of_hashtags.split(",") for tweet in tweets  if (tweet.list_of_hashtags != "")]		
@@ -152,14 +154,16 @@ class Database:
 		hashtags = [hashtag for hashtag in hashtags if hashtag.count('?')/float(len(hashtag)) < .4]
 		unique_elements, frequency = np.unique(hashtags, return_counts=True)
 		sorted_indexes = np.argsort(frequency)[::-1]
-    
+		
 		sorted_by_freq = unique_elements[sorted_indexes]
 		sorted_freq = np.sort(frequency)[::-1]
 		ret = min(int(sorted_by_freq.size*.05),20)
 
 		#percents = [float(freq)/float(len(sorted_by_freq)) * 100 for freq in frequency]
-		
-		return sorted_by_freq[:ret], sorted_freq[:ret]
+		topHashtags = sorted_by_freq[:ret]
+		topHashtagsFreq = sorted_freq[:ret]
+		dates = [self.getHastagDates(hashtag,tweets) for hashtag in topHashtags]
+		return 	topHashtags, topHashtagsFreq,dates
 
 def dtto(t):
 	return "'" + str(t).split(' ')[0] + "'"
