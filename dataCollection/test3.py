@@ -38,11 +38,8 @@ def getCountry(user):
 users = None
 with open('userTweetTable.pickle', 'rb') as handle:
     users = pickle.load(handle)
-#users = db2.userTweetTable()
-i = 0
-#with open('userTweetTable.pickle', 'wb') as handle:
-    #pickle.dump(users, handle, protocol=pickle.HIGHEST_PROTOCOL)
 updU = []
+i=0
 for user,l in users:
 	user = db2.getUsertp(user)
 	user.fingerprint = (user.mod([datetime.strptime("{0} {1} {2} {3}".format(*date.split()), "%b %d %Y %I:%M%p").time() for date in l.split(",")]))

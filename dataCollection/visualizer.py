@@ -36,6 +36,7 @@ db2 = database.Database(server_2,database_2,uid_2,pwd_2)
 users = db2.getAllUsers()
 tw = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
 
+
 # for retweeter in retweeters:
 #     try:
 #         users.append(tw.scrapeUserData(str(retweeter), get_tweets= False))
@@ -49,12 +50,28 @@ def compare(account1,account2):
 def dist(account1,account2):
     return abs(compare(account1,account2))
 
-clusters = algos.cluster(users,15,1209600,compare,dist)
-cluster_dates = [[user.creationDate for user in cluster] for cluster in clusters]
-all_user_dates = [user.creationDate for user in users]
-custer_engagement =  [[user.engagement for user in cluster] for cluster in clusters]
-fingers = algos.fingerprintCluster(users,30)
+#clusters = algos.cluster(users,15,1209600,compare,dist)
+#cluster_dates = [[user.creationDate for user in cluster] for cluster in clusters]
+#all_user_dates = [user.creationDate for user in users]
+#custer_engagement =  [[user.engagement for user in cluster] for cluster in clusters]
+#fingers = algos.fingerprintCluster(users,30)
 
+def plotTimes(user):
+	fig = plt.figure(figsize=(20, 20))
+	ax = plt.gca()
+	tweets = db2.getAllTweetsByUserID(user.IDstr)
+	tweets.sort(key=lambda e : e.time)
+	diffs = [0] * (len(tweets)-1)
+	i = 0
+	for tweet1,tweet2 in zip(tweets[0:-2],tweets[1:-1]):
+		diffs[i] = (tweet2.time - tweet1.time).total_seconds()/60
+		i+=1
+	print(diffs)
+	plt.hist(diffs,bins=100)
+	plt.show()
+
+#for user in users:
+	#plotTimes(user)
 
 def engagementMap(users):
     engagement_dict = {}
@@ -66,10 +83,10 @@ def engagementMap(users):
                 engagement_dict[engagemet[1]] = [user]
     return engagement_dict
 
-cluster_maps = [engagementMap(cluster) for cluster in clusters]
-cluster_users = [item for sublist in clusters for item in sublist]
-full_map = engagementMap(cluster_users)
-full_user_map = engagementMap(users)
+#cluster_maps = [engagementMap(cluster) for cluster in clusters]
+#cluster_users = [item for sublist in clusters for item in sublist]
+#full_map = engagementMap(cluster_users)
+#full_user_map = engagementMap(users)
 
 
 def plotSegmentedEngagementMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,large_data = False):
@@ -163,6 +180,22 @@ def pairEngagement(list):
 			print(tupple)
 	return pairs
 
+def plot_som_series_averaged_center(som_x, som_y, win_map):
+	fig, axs = plt.subplots(som_x,som_y,figsize=(25,25))
+	fig.suptitle('Clusters')
+	for x in range(som_x):
+		for y in range(som_y):
+			cluster = (x,y)
+			cluster_number = x*som_y+y+1
+			if cluster in win_map.keys():
+				for series in win_map[cluster]:
+					axs[cluster].plot(series,c="gray",alpha=0.5) 
+				axs[cluster].plot(np.average(np.vstack(win_map[cluster]),axis=0),c="red")
+				print(cluster_number,len(win_map[cluster]))
+			axs[cluster].set_title(f"Cluster {cluster_number}")
+
+	plt.show()
+
 def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,large_data = False,segment = False):
     mid_ys = []
     mid_dates = []
@@ -227,7 +260,7 @@ def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,l
 
 
 # print(custer_engagement)
-all_dates = []
+#all_dates = []
 
 # for i in range (0,len(cluster_dates)):
 #     x_poses = []
@@ -254,11 +287,11 @@ all_dates = []
 # ax.set_xlabel("Creation Dates", fontsize=10)
 # ax.set_ylabel("Tweet Count", fontsize=10)
 
-y = [user.tweet_count for user in users]
+#y = [user.tweet_count for user in users]
 
-x_poses = []
-y_poses = []
-texts = []
+#x_poses = []
+#y_poses = []
+#texts = []
 
 # ax.axes.yaxis.set_visible(False)
 # plt.scatter(all_dates,y, marker='o', c='black', lw=.25)
@@ -336,7 +369,7 @@ def plotfcs(fingerprintCluster):
 		ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
 		fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
 
-plotfcs(fingers)
+#plotfcs(fingers)
 # for i in range(len(texts)):
 #     plt.annotate(texts[i],(x_poses[i],y_poses[i]), rotation = 90, textcoords="offset points", 
 #             xytext=(0,6),
@@ -349,6 +382,8 @@ plotfcs(fingers)
 # plt.show()
 
 
+
+	
 
 
 
@@ -376,4 +411,4 @@ plotfcs(fingers)
 # plt.scatter(list_2021,np.zeros_like(list_2021) + 0, marker='o', c='red', lw=5)
 
 
-plt.show()
+#plt.show()

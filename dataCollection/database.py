@@ -20,10 +20,10 @@ class Database:
 		for row in self.cursor.tables():
 			print(r)
 
-	def getAllTweets(self):
-		lst = self.cursor.execute("SELECT TOP (100) [TweetID],[idStr],[screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet]")
-		tweets = [Tweet(row[0],row[1],row[2],row[3] if row[3] is not None else 0, row[4]) for row in lst]
-		return tweets
+	#def getAllTweets(self):
+		#lst = self.cursor.execute("SELECT TOP (100) [TweetID],[idStr],[screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet]")
+		#tweets = [Tweet(row[0],row[1],row[2],row[3] if row[3] is not None else 0, row[4]) for row in lst]
+		#return tweets
 
 	def getAllTweetsBetween(self,start,end):
 		lst = self.cursor.execute("SELECT [IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets]  FROM [dbo].[Tweets] WHERE [time] BETWEEN " + dtto(start) + " AND " + dtto(end))
@@ -34,9 +34,13 @@ class Database:
 		lst = self.cursor.execute("SELECT [screenName],[retweetCount],[createdAt] FROM [dbo].[Tweet] WHERE [screenName] = '" + screenName + "'")
 		tweets = [Tweet(row[0],row[1],row[2],row[3] if row[3] is not None else 0, row[4]) for row in lst]
 		return tweets
+	def getAllTweets(self):
+		lst = self.cursor.execute("SELECT [IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets] FROM [dbo].[Tweets]")
+		tweets = [Tweet(row[0],contains_video=row[1],num_photos=row[2],list_of_hashtags=row[3],time=row[4],posterID=row[5], retweets=row[6]) for row in lst]
+		return tweets
 	def getAllTweetsByUserID(self, id):
 		lst = self.cursor.execute("SELECT [IDStr],[containsVideo],[numberOfPictures],[listOfHashtags],[time],[posterID],[retweets] FROM [dbo].[Tweets] WHERE [posterID] = '" + id + "'")
-		tweets = [Tweet(row[0],list_of_hashtags= row[3],time = row[4],posterID= row[5],retweets= row[6]) for row in lst]
+		tweets = [Tweet(row[0],contains_video=row[1],num_photos=row[2],list_of_hashtags=row[3],time=row[4],posterID=row[5], retweets=row[6]) for row in lst]
 		return tweets
 	def getAllTweetsBetweenByUserID(self, ids,start,end):
 		placeholders = ", ".join(["?"] * len(ids))
@@ -133,6 +137,24 @@ class Database:
 		)
 		self.cursor.execute("SET IDENTITY_INSERT [dbo].[secondaryUsers] OFF")
 		
+	#def clear(self):
+		#self.cursor.execute("""Delete From [dbo].[Tweets];""")
+		#self.db.commit()
+	def userTweetTable(self):
+		lst = self.cursor.execute("Select [posterID], string_agg(cast([time] as NVARCHAR(MAX)),',') as dates from [dbo].[tweets] Group by [posterID]")
+		return [row for row in lst]
+			
+	#def userTweetTable(self):
+		#tweets = self.getAllTweets()
+		#table = {}
+		#for tweet in tweets:
+			#if tweet.posterID in table:
+				#table[tweet.posterID].append(tweet)
+			#else:
+				#table[tweet.posterID] = [tweet]
+		#return table
+			
+		
 	# def clear(self):
 	# 	self.cursor.execute("""Delete From [dbo].[Tweets];""")
 	# 	self.db.commit()
@@ -219,6 +241,46 @@ class User:
 			ret[db.getCountry(s)] += 1
 		self.countries = ret
 		return ret
+	def mod(self,lod):
+		time = datetime.datetime(2020,11,17,0,0,0)
+		lod.sort()
+		buckets = [0.0]*48
+		ind = 0
+		for i in range(48):
+			amount = 0
+			while lod[ind] < time.time():
+				amount += 1
+				ind += 1
+				if ind >= len(lod):
+					break
+			if ind >= len(lod):
+				break
+			buckets[i] = amount/len(lod)
+			time += datetime.timedelta(minutes = 30)
+		return buckets
+	def fineFingerPrint(self,db):
+		if len(self.fingerprint) == 365:
+			return self.fingerprint
+		tweets = db.getAllTweetsByUserID(self.IDstr)
+		if len(tweets) == 0:
+			return [0.0]*365
+		date = datetime.datetime(2020,11,17,0,0,0)
+		tweets.sort(key=lambda e : e.time)
+		buckets = [0.0]*365
+		ind = 0
+		for i in range(365):
+			amount = 0
+			while tweets[ind].time < date:
+				amount += 1
+				ind += 1
+				if ind >= len(tweets):
+					break
+			if ind >= len(tweets):
+				break
+			buckets[i] = amount/len(tweets)
+			date += datetime.timedelta(days = 1)
+		return buckets
+
 	def matches(self, username):
 		patern = re.compile("^[a-zA-Z_]+[0-9]{3}[0-9]*$")
 		return bool(patern.match(username))
