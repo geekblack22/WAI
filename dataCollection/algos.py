@@ -93,7 +93,7 @@ def getClusters(lou):
 	for user in lou:
 		finger = user.fingerprint
 		s = sum(finger)
-		if len(finger) != 48 or s == 0.0:
+		if s == 0.0:
 			continue
 		lst = []
 		n = 2
@@ -106,7 +106,7 @@ def getClusters(lou):
 
 	som.random_weights_init(series)
 	som.train(series, 50000)
-	return som_x,som_y,som.win_map(series)
+	return som_x,som_y,som.win_map(lou)
 
 
 

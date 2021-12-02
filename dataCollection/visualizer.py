@@ -7,12 +7,13 @@ import algos
 import datetime
 import database
 from dotenv import load_dotenv
-from scipy.stats import chi2, loglaplace
-from datetime import timedelta  
+from scipy.stats import chi2, loglaplace 
+from datetime import datetime, timedelta
 from labellines import labelLine, labelLines
 from matplotlib import rcParams, cycler
 import matplotlib.backends.backend_pdf
 import matplotlib.dates as mdates
+import calendar
 retweeters = [2721413702,2897373563,1282456897,2541012107,1039900418686500865,1016733350785007616,388736352,239619301,803939316871393280,767270527,317302594,985220102483333120,2335406749,2609222612,2721957062]
 n = np.arange(len(retweeters))
 y = np.zeros_like(n) + 1
@@ -128,12 +129,12 @@ def plotSegmentedEngagementMap(engagement_dict,y,cluster_users,all_dates,x_label
 def plotFingerPrint(user):
 	fingerPrint = user.getFingerprint()
     # plt.figure()
-	end_date = datetime.datetime(2021,11,8)
+	end_date = datetime(2021,11,8)
 	dates = []
 	date = end_date
 	for i in range(25):	
 		dates.append(date)
-		date = date - datetime.timedelta(days=15)
+		date = date - timedelta(days=15)
 	dates.reverse()   
 	
 	count, bins_count = np.histogram(fingerPrint, bins=25)
@@ -355,7 +356,88 @@ def plotCountryBarGraph(fingerprintCluster):
 		
 		
     #fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
+def generateTimelines(users):
+	start = datetime(2020,11,17)
+	end = datetime(2021,11,17)
+	date = end
+	dates = []
+	all_hashtags = []
+	all_dates = []
+	ids = [user.IDstr.strip() for user in users]
+	# ids = ["1272770461357584384","1583490801696633544","1276897886668800000","1219155179561521152","1036778724","992724216809127936","1287724171145994240"]
+	fig = plt.figure(figsize=(20, 20))
+	print(ids)
+	for i in range(12):	
+		previous_date = date
+		days_in_month = calendar.monthrange(date.year, date.month)[1]
+		date = date - timedelta(days=days_in_month)
+		
+		hashtags,freq, hash_dates = db2.hashtagProportions(ids,date,previous_date)
+		print(date)
+		print(previous_date)
+		print(hashtags)
+		print(freq)
+		
+		all_hashtags.extend(hashtags)
+		
+		# for j in range(len(hashtags)):
+		# 	all_hashtags.extend([hashtags[j] for p in range(freq[j])])
+		# hash_dates = [item for sublist in hash_dates for item in sublist]
+		# all_dates.extend(hash_dates)
+		all_dates = [dates[0] for dates in hash_dates]
+			# if date == start:
+			# 	break
+		print(all_hashtags)
+		print(all_dates)
+		levels = []
+		# for i in range(len(all_dates)):
+		# 	if i%2== 0:
+		# 		levels.append(i*30)
+		# 	else:
+		# 		levels.append(i*-30)
+		# levels = np.tile([-15, 15, -13, 13, -10, 10, -30, -4],
+        #          int(np.ceil(len(all_dates)/6)))[:len(all_dates)]
+		# levels = np.array(levels)
+		
+		
+		# for i in range(len(all_dates)):
+		# 	if i%2== 0:
+		# 		freq[i] = i*10
+		# 	else:
+		# 		freq[i] = i*-10
+		levels = np.array(freq)
+		plt.bar(all_dates,freq)
+	cm = plt.get_cmap('jet')
+	rcParams['axes.prop_cycle'] = cycler(color=cm(np.linspace(0, 1, len(all_hashtags))))
+	plt.legend(all_hashtags)
+	# Create figure and plot a stem plot with the date
 
+		
+		# ax = plt.gca()
+		# ax.set(title="Matplotlib release dates")
+
+		# ax.vlines(all_dates, 0, levels, color="tab:red")  # The vertical stems.
+		# ax.plot(all_dates, np.zeros_like(all_dates), "-o",
+		# 		color="k", markerfacecolor="w")  # Baseline and markers on it.
+
+		# # annotate lines
+		# for d, l, r in zip(all_dates, levels, all_hashtags):
+		# 	ax.annotate(r, xy=(d, l),
+		# 				xytext=(-3, np.sign(l)*3), textcoords="offset points",
+		# 				horizontalalignment="right" if l > 0 else "left",
+		# 				verticalalignment="bottom" if l > 0 else "top",fontsize = 10)
+
+		# # format xaxis with 4 month intervals
+		# ax.xaxis.set_major_locator(mdates.DayLocator(interval=30))
+		# ax.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y'))
+		
+		# # remove y axis and spines
+		# ax.yaxis.set_visible(False)
+		# ax.spines[["left", "top", "right"]].set_visible(False)
+		# plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+		
+	
+	plt.show()
 def plotfcs(fingerprintCluster):
 	
 	for cluster in fingerprintCluster:
@@ -364,7 +446,7 @@ def plotfcs(fingerprintCluster):
 		for user in cluster:
 			plotFingerPrint(user)
 		vals = ax.get_yticks()
-		ax.xaxis.set_major_locator(mdates.DayLocator(interval=15))
+		ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
 		ax.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y'))
 		ax.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
 		fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")

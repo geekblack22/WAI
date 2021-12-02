@@ -173,13 +173,20 @@ class Database:
 		tweets = self.getAllTweetsBetweenByUserID(ids,start,end)
 		hashtags = [tweet.list_of_hashtags.split(",") for tweet in tweets  if (tweet.list_of_hashtags != "")]		
 		hashtags = [item for sublist in hashtags for item in sublist]
-		hashtags = [hashtag for hashtag in hashtags if hashtag.count('?')/float(len(hashtag)) < .4]
+		hashtags = [hashtag for hashtag in hashtags if hashtag.count('?') < 1]
 		unique_elements, frequency = np.unique(hashtags, return_counts=True)
 		sorted_indexes = np.argsort(frequency)[::-1]
 		
 		sorted_by_freq = unique_elements[sorted_indexes]
 		sorted_freq = np.sort(frequency)[::-1]
-		ret = min(int(sorted_by_freq.size*.05),20)
+		ret = min(int(sorted_by_freq.size*.05),10)
+		print(sorted_by_freq.size)
+		print(ret)
+		if ret < 5:
+			ret = 5
+		elif int(sorted_by_freq.size) < 5:
+			ret = int(sorted_by_freq.size) -1
+		
 
 		#percents = [float(freq)/float(len(sorted_by_freq)) * 100 for freq in frequency]
 		topHashtags = sorted_by_freq[:ret]

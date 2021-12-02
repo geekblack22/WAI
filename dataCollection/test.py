@@ -36,27 +36,30 @@ def getCountry(user):
 	return c
 
 users = None
-with open('userTweetTable.pickle', 'rb') as handle:
-    users = pickle.load(handle)
+# with open('userTweetTable.pickle', 'rb') as handle:
+#     users = pickle.load(handle)
 #users = db2.userTweetTable()
 i = 0
 #with open('userTweetTable.pickle', 'wb') as handle:
     #pickle.dump(users, handle, protocol=pickle.HIGHEST_PROTOCOL)
-updU = []
-for user,l in users:
-	user = db2.getUsertp(user)
-	user.fingerprint = (user.mod([datetime.strptime("{0} {1} {2} {3}".format(*date.split()), "%b %d %Y %I:%M%p").time() for date in l.split(",")]))
-	updU.append(user)
-	print(i, "users done")
-	i+=1
-	print(user.fingerprint)
+updU = db2.getAllUsers()
+# for user,l in users:
+# 	user = db2.getUsertp(user)
+# 	user.fingerprint = (user.mod([datetime.strptime("{0} {1} {2} {3}".format(*date.split()), "%b %d %Y %I:%M%p").time() for date in l.split(",")]))
+# 	updU.append(user)
+# 	print(i, "users done")
+# 	i+=1
+# 	print(user.fingerprint)
 
-ch = filter(lambda u : getCountry(u) == 'ch', updU)
+# ch = filter(lambda u : getCountry(u) == 'ch', updU)
 
-visualizer.plot_som_series_averaged_center(*algos.getClusters(ch))
-ir = filter(lambda u : getCountry(u) == 'ir', updU)
+# # visualizer.plot_som_series_averaged_center(*algos.getClusters(ch))
+# #ir = filter(lambda u : getCountry(u) == 'ir', updU)
+# cluster = algos.getClusters(ch)
+# updU = algos.getClusters(ch)[2][(0,1)]
+# print(updU[0])
+visualizer.generateTimelines(updU[:20])
+# visualizer.plot_som_series_averaged_center(*algos.getClusters(ir))
+# ru = filter(lambda u : getCountry(u) == 'ru', updU)
 
-visualizer.plot_som_series_averaged_center(*algos.getClusters(ir))
-ru = filter(lambda u : getCountry(u) == 'ru', updU)
-
-visualizer.plot_som_series_averaged_center(*algos.getClusters(ru))
+# visualizer.plot_som_series_averaged_center(*algos.getClusters(ru))
