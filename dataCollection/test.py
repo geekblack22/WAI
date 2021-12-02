@@ -35,6 +35,7 @@ def getCountry(user):
 	c = max(zip(countries.values(), countries.keys()))[1]
 	return c
 
+
 users = None
 # with open('userTweetTable.pickle', 'rb') as handle:
 #     users = pickle.load(handle)

@@ -13,7 +13,11 @@ from labellines import labelLine, labelLines
 from matplotlib import rcParams, cycler
 import matplotlib.backends.backend_pdf
 import matplotlib.dates as mdates
+
 import calendar
+
+import scipy.stats as stats
+
 retweeters = [2721413702,2897373563,1282456897,2541012107,1039900418686500865,1016733350785007616,388736352,239619301,803939316871393280,767270527,317302594,985220102483333120,2335406749,2609222612,2721957062]
 n = np.arange(len(retweeters))
 y = np.zeros_like(n) + 1
@@ -196,6 +200,26 @@ def plot_som_series_averaged_center(som_x, som_y, win_map):
 			axs[cluster].set_title(f"Cluster {cluster_number}")
 
 	plt.show()
+
+
+def plotWeek(lot):
+	vals = list(map(lambda t : (t - datetime.datetime.combine(t.date() - (datetime.timedelta(days = t.weekday())), datetime.datetime.min.time())).total_seconds(), lot))
+	print(vals)
+	density = stats.gaussian_kde(vals)
+	n, x, _ = plt.hist(vals, bins=365, histtype=u'step', density=True)
+	plt.plot(x, density(x))
+	plt.show()
+
+def plotAllTweets(lou):
+	u = []
+	for user in lou:
+		u.append(user.fingerprint)
+	for user in u:
+		plt.plot(user,c="gray",alpha=0.5) 
+
+	plt.plot(np.sum(np.vstack(u),axis=0),c="red")
+	plt.show()
+
 
 def plotEngagemetMap(engagement_dict,y,cluster_users,all_dates,x_label,y_label,large_data = False,segment = False):
     mid_ys = []
