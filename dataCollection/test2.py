@@ -36,13 +36,39 @@ def getCountry(user):
 	c = max(zip(countries.values(), countries.keys()))[1]
 	return c
 
-users = db2.getAllUsers()
 
-table = db2.userTweetTable()
+#users = db2.getAllUsers()
 
-for userID, lot in table:
-	print(userID, len(lot))
+#ch = filter(lambda u : getCountry(u) == 'ch', users)
+#ir = filter(lambda u : getCountry(u) == 'ir', users)
+#ru = filter(lambda u : getCountry(u) == 'ru', users)
 
-#users = filter(lambda u : getCountry(u) == 'ru', users)
+users = None
+with open('userTweetTable.pickle', 'rb') as handle:
+    users = pickle.load(handle)
 
-#visualizer.plot_som_series_averaged_center(*algos.getClusters(users))
+chU = filter(lambda u : getCountry(db2.getUsertp(u[0])) == 'ch', users)
+irU = filter(lambda u : getCountry(db2.getUsertp(u[0])) == 'ir', users)
+ruU = filter(lambda u : getCountry(db2.getUsertp(u[0])) == 'ru', users)
+
+ch = []
+ir = []
+ru = []
+i=0
+
+for key,value in chU:
+	print(i)
+	i+=1
+	ch.extend([datetime.strptime("{0} {1} {2} {3}".format(*date.split()), "%b %d %Y %I:%M%p") for date in value.split(",")])
+for key,value in irU:
+	print(i)
+	i+=1
+	ir.extend([datetime.strptime("{0} {1} {2} {3}".format(*date.split()), "%b %d %Y %I:%M%p") for date in value.split(",")])
+for key,value in ruU:
+	print(i)
+	i+=1
+	ru.extend([datetime.strptime("{0} {1} {2} {3}".format(*date.split()), "%b %d %Y %I:%M%p") for date in value.split(",")])
+
+visualizer.plotWeek(ch)
+visualizer.plotWeek(ir)
+visualizer.plotWeek(ru)

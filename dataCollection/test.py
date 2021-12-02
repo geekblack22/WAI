@@ -35,28 +35,7 @@ def getCountry(user):
 	c = max(zip(countries.values(), countries.keys()))[1]
 	return c
 
-users = None
-with open('userTweetTable.pickle', 'rb') as handle:
-    users = pickle.load(handle)
-#users = db2.userTweetTable()
-i = 0
-#with open('userTweetTable.pickle', 'wb') as handle:
-    #pickle.dump(users, handle, protocol=pickle.HIGHEST_PROTOCOL)
-updU = []
-for user,l in users:
-	user = db2.getUsertp(user)
-	user.fingerprint = (user.mod([datetime.strptime("{0} {1} {2} {3}".format(*date.split()), "%b %d %Y %I:%M%p").time() for date in l.split(",")]))
-	updU.append(user)
-	print(i, "users done")
-	i+=1
-	print(user.fingerprint)
+users = db2.getAllUsers()
+ch = list(filter(lambda u : getCountry(u) == 'ch', users))
+print(len(ch)/len(users))
 
-ch = filter(lambda u : getCountry(u) == 'ch', updU)
-
-visualizer.plot_som_series_averaged_center(*algos.getClusters(ch))
-ir = filter(lambda u : getCountry(u) == 'ir', updU)
-
-visualizer.plot_som_series_averaged_center(*algos.getClusters(ir))
-ru = filter(lambda u : getCountry(u) == 'ru', updU)
-
-visualizer.plot_som_series_averaged_center(*algos.getClusters(ru))

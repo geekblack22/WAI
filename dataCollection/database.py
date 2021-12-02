@@ -237,6 +237,24 @@ class User:
 			ret[db.getCountry(s)] += 1
 		self.countries = ret
 		return ret
+	def week(self,lod):
+		time = 0
+		lod = list(map(lambda t : (t - datetime.datetime.combine(t.date() - (datetime.timedelta(days = t.weekday())), datetime.datetime.min.time())).total_seconds(), lod))
+		lod.sort()
+		buckets = [0.0]*168
+		ind = 0
+		for i in range(168):
+			amount = 0
+			while lod[ind] < time:
+				amount += 1
+				ind += 1
+				if ind >= len(lod):
+					break
+			if ind >= len(lod):
+				break
+			buckets[i] = amount/len(lod)
+			time += 3600
+		return buckets
 	def mod(self,lod):
 		time = datetime.datetime(2020,11,17,0,0,0)
 		lod.sort()
@@ -254,19 +272,17 @@ class User:
 			buckets[i] = amount/len(lod)
 			time += datetime.timedelta(minutes = 30)
 		return buckets
-	def fineFingerPrint(self,db):
-		if len(self.fingerprint) == 365:
-			return self.fingerprint
-		tweets = db.getAllTweetsByUserID(self.IDstr)
+	def fineFingerPrint(self,lot):
+		tweets = lot
 		if len(tweets) == 0:
 			return [0.0]*365
-		date = datetime.datetime(2020,11,17,0,0,0)
-		tweets.sort(key=lambda e : e.time)
+		date = datetime.datetime(2020,11,18,0,0,0)
+		tweets.sort()
 		buckets = [0.0]*365
 		ind = 0
 		for i in range(365):
 			amount = 0
-			while tweets[ind].time < date:
+			while tweets[ind] < date:
 				amount += 1
 				ind += 1
 				if ind >= len(tweets):
