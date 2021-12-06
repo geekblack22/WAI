@@ -121,5 +121,3 @@ def backEndClusters(lou,n=1):
 		else:
 			ret[w] = [user]
 	return som_x,som_y,som.win_map(series),ret
-
-

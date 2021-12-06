@@ -41,11 +41,12 @@ def main():
 	# skip_list = [user.strip() for user in skip_list]
 	ids = ["1272770461357584384","1583490801696633544","1276897886668800000","1219155179561521152","1036778724","992724216809127936","1287724171145994240"]
 	
-	hash,freq= db2.hashtagProportions(ids,start,end)
+	hash,freq,dates= db2.hashtagProportions(ids,start,end)
 	
 	print(hash)
 	print(freq)
-	
+	print(len(dates[1]))
+	print(len(dates[0]))
 	# my_file.close()
 	# print(skip_list)
 	# for user in skip_list:
