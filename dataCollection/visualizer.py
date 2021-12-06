@@ -203,9 +203,11 @@ def summary(som_x, som_y, win_map_toData, win_map_toAcc, axis, folderName):
 					txt.write(account.IDstr + "\n")
 				plt.plot(np.average(np.vstack(win_map_toData[cluster]),axis=0),c="red")
 				#print(cluster_number,len(win_map[cluster]))
+
 			axs.set_title(f"Cluster {cluster_number}")
 			txt.close()
 			fig.savefig(f"{folderName}/{cluster_number}/frequencyGraph.jpg")
+			generateTimelines(win_map_toAcc[cluster],f"cluster_{cluster_number}",f"{folderName}/{cluster_number}/")
 	#plt.show()
 
 def plot_som_series_averaged_center(som_x, som_y, win_map):
@@ -403,7 +405,7 @@ def plotCountryBarGraph(fingerprintCluster):
 		
 		
     #fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
-def generateTimelines(users,country):
+def generateTimelines(users,country, loc = "./"):
 	start = datetime(2020,11,17)
 	end = datetime(2021,11,17)
 	date = end
@@ -411,31 +413,18 @@ def generateTimelines(users,country):
 	all_hashtags = []
 	all_dates = []
 	ids = [user.IDstr.strip() for user in users]
-	# ids = ["1272770461357584384","1583490801696633544","1276897886668800000","1219155179561521152","1036778724","992724216809127936","1287724171145994240"]
-	
-	print(ids)
 	all_freq = []
 	fig, ax = plt.subplots(4,3,figsize=(20,20))
 	fig.subplots_adjust(hspace = .46, wspace=1)
 	fig.suptitle(country, fontsize=16)
 	ax = ax.ravel()
-
-	
 	for i in range(12):	
 		previous_date = date
 		days_in_month = calendar.monthrange(date.year, date.month)[1]
 		date = date - timedelta(days=days_in_month)
-		
 		hashtags,freq, hash_dates = db2.hashtagProportions(ids,date,previous_date)
-		# print(date)
-		# print(previous_date)
-		# print(hashtags)
-		# print(freq)
 		plt.rcdefaults()
-		
 		y_pos = np.arange(len(hashtags))
-		
-
 		hashtags = list(set(hashtags))
 		y_pos = np.arange(len(hashtags))
 		ax[i].barh(y_pos, freq, align='center')
@@ -446,96 +435,7 @@ def generateTimelines(users,country):
 		ax[i].invert_yaxis()  # labels read top-to-bottom
 		ax[i].set_xlabel('Number of Tweets')
 		ax[i].set_title(date.strftime("%m/%d/%Y") + "-"+ previous_date.strftime("%m/%d/%Y"))
-
-		# for j in range(len(hashtags)):
-		# 	all_hashtags.extend([hashtags[j] for p in range(freq[j])])
-		# hash_dates = [item for sublist in hash_dates for item in sublist]
-		# all_dates.extend(hash_dates)
-		
-			
-		# dates = [dates[random.randint(int((len(dates)-1)/2),len(dates)-1)] for dates in hash_dates]
-		# dates = []
-		# for dates_list in hash_dates:
-		# 	for date in dates_list:
-		# 		if date not in dates:
-		# 			if dates != []:
-		# 				if date - dates[len(dates) -1] <= timedelta(days=3) or dates[len(dates) -1] - date <= timedelta(days=3):
-		# 					dates.append(date+timedelta(days= 3))
-		# 					break
-		# 			else:
-		# 				dates.append(date)
-		# 				break
-		# all_dates.extend(dates)
-			# if date == start:
-			# 	break
-		
-		levels = []
-
-		# for i in range(len(all_dates)):
-		# 	if i%2== 0:
-		# 		levels.append(i*30)
-		# 	else:
-		# 		levels.append(i*-30)
-		# levels = np.tile([-15, 15, -13, 13, -10, 10, -30, -4],
-        #          int(np.ceil(len(all_dates)/6)))[:len(all_dates)]
-		# levels = np.array(levels)
-		
-		
-		# for i in range(len(all_dates)):
-		# 	if i%2== 0:
-		# 		freq[i] = i*10
-		# 	else:
-		# 		freq[i] = i*-10
-	# 	levels = np.array(freq)
-	# fig, ax = plt.subplots(figsize=(5,5))
-	# cmap = plt.cm.gist_rainbow
-	# norm = mpl.colors.Normalize(vmin=0, vmax=len(all_hashtags) - 1)
-	# colors = [cmap(norm(i)) for i in range(len(all_hashtags))]
-	# # for x,y,c,lb in zip(all_dates,all_freq,colors,all_hashtags):
-	# print(len(all_freq))
-		
-	# print(len(all_dates))
-	# bar = ax.bar(all_dates, all_freq,edgecolor = "black")
-
-	# for idx,rect in enumerate(bar):
-	# 	height = rect.get_height()
-	# 	ax.text(rect.get_x() + rect.get_width()/2., 1.07*height,
-	# 			all_hashtags[idx],
-	# 			ha='center', va='bottom', rotation=90,fontsize = 6)
-	# ax.set_xticklabels(all_hashtags)
-	# handles, labels = ax.get_legend_handles_labels()
-	# by_label = dict(zip(labels, handles))
-	# ax.legend(by_label.values(), by_label.keys(),loc='center left', bbox_to_anchor=(1, 0.5))
-	
-
-	# Create figure and plot a stem plot with the date
-
-		
-		# ax = plt.gca()
-		# ax.set(title="Matplotlib release dates")
-
-		# ax.vlines(all_dates, 0, levels, color="tab:red")  # The vertical stems.
-		# ax.plot(all_dates, np.zeros_like(all_dates), "-o",
-		# 		color="k", markerfacecolor="w")  # Baseline and markers on it.
-
-		# # annotate lines
-		# for d, l, r in zip(all_dates, levels, all_hashtags):
-		# 	ax.annotate(r, xy=(d, l),
-		# 				xytext=(-3, np.sign(l)*3), textcoords="offset points",
-		# 				horizontalalignment="right" if l > 0 else "left",
-		# 				verticalalignment="bottom" if l > 0 else "top",fontsize = 10)
-
-		# # format xaxis with 4 month intervals
-		# ax.xaxis.set_major_locator(mdates.DayLocator(interval=30))
-		# ax.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y'))
-		
-		# # remove y axis and spines
-		# ax.yaxis.set_visible(False)
-		# ax.spines[["left", "top", "right"]].set_visible(False)
-		# plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
-		
-	
-	plt.show()
+	fig.savefig(loc + country)
 def plotfcs(fingerprintCluster):
 	
 	for cluster in fingerprintCluster:
