@@ -381,6 +381,16 @@ def plotCountryBarGraph(fingerprintCluster):
 		
 		
     #fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
+def generateDates(start,time_delta,num_dates):
+	dates = [start]
+	date = start
+	for i in range(num_dates - 1):
+		dates.append(date + time_delta)
+	return dates
+
+
+
+
 def generateTimelines(users,country):
 	start = datetime(2020,11,17)
 	end = datetime(2021,11,17)

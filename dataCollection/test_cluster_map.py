@@ -40,16 +40,16 @@ db2 = database.Database(server_2,database_2,uid_2,pwd_2)
 
 users = db2.getAllUsers()
 tw = twitterInterface.TwitterInterface(consumer_key,consumer_secret,bearer_token)
-clusters = algos.fingerprintCluster(users, 30)
-vis.plotfcs(clusters)
-cluster_maps = [vis.engagementMap(cluster) for cluster in clusters]
-cluster_users = [item for sublist in clusters for item in sublist]
-full_map = vis.engagementMap(cluster_users)
+# clusters = algos.fingerprintCluster(users, 30)
+# # vis.plotfcs(clusters)
+# cluster_maps = [vis.engagementMap(cluster) for cluster in clusters]
+# cluster_users = [item for sublist in clusters for item in sublist]
+# full_map = vis.engagementMap(cluster_users)
 full_user_map = vis.engagementMap(users)
 
 labeldict = {}
 
-color_inds = [i/len(clusters) for i in range(len(clusters))]
+# color_inds = [i/len(clusters) for i in range(len(clusters))]
 colors = {"ru":"#ff009d","ch":"#00ff2a","ir":"#0099ff"}
 i  = 0
 css = """/* basic positioning */
@@ -78,10 +78,10 @@ def plotClusterEngagement(cluster,cluster_map,ind):
 	G = nx.Graph()
 	net = Network("1500px", "1500px",notebook= True)
 	for user in cluster:
-		label= clusters.index(cluster)
+		# label= clusters.index(cluster)
 		G.add_node(user.IDstr.strip(),label = " ",color = addColor(user))
-		labeldict[user.IDstr.strip()] = str(1+label)
-	engagementEdges(cluster_map,G,ind)
+		# labeldict[user.IDstr.strip()] = str(1+label)
+	engagementEdges(cluster_map,G)
 	pos = nx.spring_layout(G,k=1,scale = 20)
 	nx.draw_networkx_nodes(G, pos)
 	nx.draw_networkx_edges(
@@ -106,8 +106,8 @@ def plotClusterEngagement(cluster,cluster_map,ind):
 	style.append(css)
 
 	body.insert_before(piece)
-	image = BeautifulSoup(f"""<img src="Cluster_{ind}_Fingerprint.jpeg" alt="Italian Trulli">""",'html.parser')
-	body.insert_after(image)
+	# image = BeautifulSoup(f"""<img src="Cluster_{ind}_Fingerprint.jpeg" alt="Italian Trulli">""",'html.parser')
+	# body.insert_after(image)
 	print(soup)
 
 	htmlDoc.close()
@@ -123,7 +123,7 @@ def addColor(user):
 
 
 def engagementEdges(cluster_map,G):
-	colors = {"ru":"#ff009d","ch":"#00ff2a","ir":"#0099ff"}
+	colors = {"ru":"#5194c0","ch":"#00ff2a","ir":"#74a981"}
 	for key,engagers in cluster_map.items():
 		users = [user.IDstr.strip() for user in engagers]
 		label = db.getCountry(str(key))
@@ -153,6 +153,8 @@ def engagementEdges(cluster_map,G):
 #         labeldict[user.IDstr.strip()] = str(1+label)
 #         colors.append(color_inds[label])
 	   
-for i in range(len(clusters)):
+# for i in range(len(clusters)):
 
-	plotClusterEngagement(clusters[i],cluster_maps[i],i)
+plotClusterEngagement(users,full_user_map,"All")
+print(full_user_map)
+
