@@ -186,6 +186,28 @@ def pairEngagement(list):
 			print(tupple)
 	return pairs
 
+def summary(som_x, som_y, win_map_toData, win_map_toAcc, axis, folderName):
+	os.mkdir(folderName)
+	#fig.suptitle('Clusters')
+	for x in range(som_x):
+		for y in range(som_y):
+			fig, axs = plt.subplots(figsize=(25,25))
+			cluster = (x,y)
+			cluster_number = x*som_y+y+1
+			os.mkdir(folderName + "/" + str(cluster_number))
+			txt = open(f"{folderName}/{cluster_number}/accounts.txt", "w")
+			if cluster in win_map_toData.keys():
+				for series,account in zip(win_map_toData[cluster],win_map_toAcc[cluster]):
+					print(account.IDstr)
+					plt.plot(series,c="gray",alpha=0.5) 
+					txt.write(account.IDstr + "\n")
+				plt.plot(np.average(np.vstack(win_map_toData[cluster]),axis=0),c="red")
+				#print(cluster_number,len(win_map[cluster]))
+			axs.set_title(f"Cluster {cluster_number}")
+			txt.close()
+			fig.savefig(f"{folderName}/{cluster_number}/frequencyGraph.jpg")
+	#plt.show()
+
 def plot_som_series_averaged_center(som_x, som_y, win_map):
 	fig, axs = plt.subplots(som_x,som_y,figsize=(25,25))
 	fig.suptitle('Clusters')

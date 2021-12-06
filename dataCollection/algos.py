@@ -88,7 +88,15 @@ def fingerprint(user, threshhold):
 			ends.append(user.tweets[i])
 	return (starts,ends)
 
-def getFingers(lou):
+def getFingers(lou,n=1):
+	som_x,som_y,win_map,ret = backEndClusters(lou,n)
+	return ret
+
+def getClusters(lou,n=1):
+	som_x,som_y,win_map,ret = backEndClusters(lou,n)
+	return som_x,som_y,win_map
+
+def backEndClusters(lou,n=1):
 	series = []
 	for user in lou:
 		finger = user.fingerprint
@@ -96,7 +104,6 @@ def getFingers(lou):
 		if s == 0.0:
 			continue
 		lst = []
-		n = 7
 		for i,dp in enumerate(finger[::n]):
 			apd = sum([f/s for f in finger[n*i:n*i+n:]])
 			lst.append(apd)
@@ -113,31 +120,4 @@ def getFingers(lou):
 			ret[w].append(user)
 		else:
 			ret[w] = [user]
-	return ret
-
-def getClusters(lou):
-	series = []
-	for user in lou:
-		finger = user.fingerprint
-		s = sum(finger)
-		if s == 0.0:
-			continue
-		lst = []
-		n = 7
-		for i,dp in enumerate(finger[::n]):
-			apd = sum([f/s for f in finger[n*i:n*i+n:]])
-			lst.append(apd)
-		series.append(lst)
-	som_x = som_y = math.ceil(math.sqrt(math.sqrt(len(series))))
-	som = MiniSom(som_x, som_y,len(series[0]), sigma=1, learning_rate = 0.1)
-
-	som.random_weights_init(series)
-	som.train(series, 50000)
-
-	for seri in series:
-		print(som.winner(seri))
-	return som_x,som_y,som.win_map(series)
-
-
-
-
+	return som_x,som_y,som.win_map(series),ret
