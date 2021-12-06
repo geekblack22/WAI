@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from numpy.core.defchararray import startswith
 import twitterInterface 
 import os
+from statistics import mean
 import algos
 import datetime
 import database
@@ -13,9 +14,9 @@ from labellines import labelLine, labelLines
 from matplotlib import rcParams, cycler
 import matplotlib.backends.backend_pdf
 import matplotlib.dates as mdates
-
+import random
 import calendar
-
+import matplotlib as mpl
 import scipy.stats as stats
 
 retweeters = [2721413702,2897373563,1282456897,2541012107,1039900418686500865,1016733350785007616,388736352,239619301,803939316871393280,767270527,317302594,985220102483333120,2335406749,2609222612,2721957062]
@@ -380,7 +381,7 @@ def plotCountryBarGraph(fingerprintCluster):
 		
 		
     #fig.savefig("Cluster_"+str(fingerprintCluster.index(cluster))+"_Fingerprint.jpeg")
-def generateTimelines(users):
+def generateTimelines(users,country):
 	start = datetime(2020,11,17)
 	end = datetime(2021,11,17)
 	date = end
@@ -389,31 +390,65 @@ def generateTimelines(users):
 	all_dates = []
 	ids = [user.IDstr.strip() for user in users]
 	# ids = ["1272770461357584384","1583490801696633544","1276897886668800000","1219155179561521152","1036778724","992724216809127936","1287724171145994240"]
-	fig = plt.figure(figsize=(20, 20))
+	
 	print(ids)
+	all_freq = []
+	fig, ax = plt.subplots(4,3,figsize=(20,20))
+	fig.subplots_adjust(hspace = .46, wspace=1)
+	fig.suptitle(country, fontsize=16)
+	ax = ax.ravel()
+
+	
 	for i in range(12):	
 		previous_date = date
 		days_in_month = calendar.monthrange(date.year, date.month)[1]
 		date = date - timedelta(days=days_in_month)
 		
 		hashtags,freq, hash_dates = db2.hashtagProportions(ids,date,previous_date)
-		print(date)
-		print(previous_date)
-		print(hashtags)
+		# print(date)
+		# print(previous_date)
+		# print(hashtags)
+		# print(freq)
+		plt.rcdefaults()
+		
+		y_pos = np.arange(len(hashtags))
+		
+
+		hashtags = list(set(hashtags))
+		y_pos = np.arange(len(hashtags))
+		ax[i].barh(y_pos, freq, align='center')
 		print(freq)
-		
-		all_hashtags.extend(hashtags)
-		
+		print(freq)
+		ax[i].set_yticks(y_pos)
+		ax[i].set_yticklabels(hashtags)
+		ax[i].invert_yaxis()  # labels read top-to-bottom
+		ax[i].set_xlabel('Number of Tweets')
+		ax[i].set_title(date.strftime("%m/%d/%Y") + "-"+ previous_date.strftime("%m/%d/%Y"))
+
 		# for j in range(len(hashtags)):
 		# 	all_hashtags.extend([hashtags[j] for p in range(freq[j])])
 		# hash_dates = [item for sublist in hash_dates for item in sublist]
 		# all_dates.extend(hash_dates)
-		all_dates = [dates[0] for dates in hash_dates]
+		
+			
+		# dates = [dates[random.randint(int((len(dates)-1)/2),len(dates)-1)] for dates in hash_dates]
+		# dates = []
+		# for dates_list in hash_dates:
+		# 	for date in dates_list:
+		# 		if date not in dates:
+		# 			if dates != []:
+		# 				if date - dates[len(dates) -1] <= timedelta(days=3) or dates[len(dates) -1] - date <= timedelta(days=3):
+		# 					dates.append(date+timedelta(days= 3))
+		# 					break
+		# 			else:
+		# 				dates.append(date)
+		# 				break
+		# all_dates.extend(dates)
 			# if date == start:
 			# 	break
-		print(all_hashtags)
-		print(all_dates)
+		
 		levels = []
+
 		# for i in range(len(all_dates)):
 		# 	if i%2== 0:
 		# 		levels.append(i*30)
@@ -429,11 +464,28 @@ def generateTimelines(users):
 		# 		freq[i] = i*10
 		# 	else:
 		# 		freq[i] = i*-10
-		levels = np.array(freq)
-		plt.bar(all_dates,freq)
-	cm = plt.get_cmap('jet')
-	rcParams['axes.prop_cycle'] = cycler(color=cm(np.linspace(0, 1, len(all_hashtags))))
-	plt.legend(all_hashtags)
+	# 	levels = np.array(freq)
+	# fig, ax = plt.subplots(figsize=(5,5))
+	# cmap = plt.cm.gist_rainbow
+	# norm = mpl.colors.Normalize(vmin=0, vmax=len(all_hashtags) - 1)
+	# colors = [cmap(norm(i)) for i in range(len(all_hashtags))]
+	# # for x,y,c,lb in zip(all_dates,all_freq,colors,all_hashtags):
+	# print(len(all_freq))
+		
+	# print(len(all_dates))
+	# bar = ax.bar(all_dates, all_freq,edgecolor = "black")
+
+	# for idx,rect in enumerate(bar):
+	# 	height = rect.get_height()
+	# 	ax.text(rect.get_x() + rect.get_width()/2., 1.07*height,
+	# 			all_hashtags[idx],
+	# 			ha='center', va='bottom', rotation=90,fontsize = 6)
+	# ax.set_xticklabels(all_hashtags)
+	# handles, labels = ax.get_legend_handles_labels()
+	# by_label = dict(zip(labels, handles))
+	# ax.legend(by_label.values(), by_label.keys(),loc='center left', bbox_to_anchor=(1, 0.5))
+	
+
 	# Create figure and plot a stem plot with the date
 
 		

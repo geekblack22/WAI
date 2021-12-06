@@ -108,7 +108,7 @@ def getFingers(lou):
 	som.train(series, 50000)
 	ret = {}
 	for seri,user in zip(series,lou):
-		w = som.winnder(seri)
+		w = som.winner(seri)
 		if w in ret:
 			ret[w].append(user)
 		else:

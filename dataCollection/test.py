@@ -52,15 +52,26 @@ updU = db2.getAllUsers()
 # 	i+=1
 # 	print(user.fingerprint)
 
-# ch = filter(lambda u : getCountry(u) == 'ch', updU)
+ch = filter(lambda u : getCountry(u) == 'ir', updU)
+ch_accounts = []
+for i in ch:
+	ch_accounts.append(i)
+	
 
 # # visualizer.plot_som_series_averaged_center(*algos.getClusters(ch))
 # #ir = filter(lambda u : getCountry(u) == 'ir', updU)
-# cluster = algos.getClusters(ch)
+#cluster = algos.getClusters(ch)
 # updU = algos.getClusters(ch)[2][(0,1)]
 # print(updU[0])
-visualizer.generateTimelines(updU[:20])
-# visualizer.plot_som_series_averaged_center(*algos.getClusters(ir))
+fingers = algos.getFingers(ch_accounts)
+clusters = fingers.items()
+clusters = [item for sublist in clusters for item in sublist]
+clusters = [cluster for cluster in clusters if type(cluster) is not tuple]
+clusters = [item for sublist in clusters for item in sublist]
+print(clusters)
+# Here d_items is a
+visualizer.generateTimelines(clusters,"Iran")
+#visualizer.plot_som_series_averaged_center(*algos.getClusters(ir))
 # ru = filter(lambda u : getCountry(u) == 'ru', updU)
 
 # visualizer.plot_som_series_averaged_center(*algos.getClusters(ru))
