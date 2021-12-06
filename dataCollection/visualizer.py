@@ -401,6 +401,12 @@ def plotCountryBarGraph(fingerprintCluster):
 
 
 		
+def generateDates(start,time_delta,num_dates):
+	dates = [start]
+	date = start
+	for i in range(num_dates - 1):
+		dates.append(date + time_delta)
+	return dates
 		
 		
 		
